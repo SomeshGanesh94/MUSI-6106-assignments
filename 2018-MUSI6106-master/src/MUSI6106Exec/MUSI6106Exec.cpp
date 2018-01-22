@@ -40,7 +40,6 @@ int main(int argc, char* argv[])
     
     //////////////////////////////////////////////////////////////////////////////
     // open the input wave file
-    
     CAudioFileIf::create(phAudioFile);
     phAudioFile->openFile(sInputFilePath, CAudioFileIf::kFileRead);
 
@@ -61,18 +60,21 @@ int main(int argc, char* argv[])
     // get audio data and write it to the output file
     phAudioFile->getLength(iInFileLength);
     
-    int num_frames = iInFileLength / block_size;
+    // int num_frames = iInFileLength / block_size;
     
     std::ofstream outfile;
     outfile.open((sOutputFilePath));
     
-    for (int i = 0; i < num_frames; i++)
+    int frame_no = 0;
+    while(!phAudioFile->isEof())
     {
         phAudioFile->readData(ppfAudioData, block_size);
+        
         for (int j = 0; j < int(block_size); j++)
         {
-            outfile << ppfAudioData[0][i*int(block_size) + j] << "\t\t" << ppfAudioData[1][i*int(block_size) + j] << endl;
+            outfile << ppfAudioData[0][frame_no*int(block_size) + j] << "\t" << ppfAudioData[1][frame_no*int(block_size) + j] << endl;
         }
+        frame_no++;
     }
     
 
@@ -86,7 +88,7 @@ int main(int argc, char* argv[])
 
     //////////////////////////////////////////////////////////////////////////////
     // clean-up
-    
+    delete ppfAudioData;
     outfile.close();
     
 
