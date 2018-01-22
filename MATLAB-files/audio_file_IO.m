@@ -8,20 +8,6 @@ clear all;
 %% Comparing wave file (input) and text file (output)
 
 input_wav_file = audioread('/Users/someshganesh/Documents/GitHub/MUSI-6106-assignments/audio/sweep.wav');
+output_text_file = importdata('/Users/someshganesh/Documents/GitHub/MUSI-6106-assignments/audio/sweep.txt');
 
-output_text_file_id = fopen('/Users/someshganesh/Documents/GitHub/MUSI-6106-assignments/audio/sweep.txt','r');
-output_text_file = fscanf(output_text_file_id, '%f');
-output = zeros(132300,2);
-
-for i=1:2:length(output_text_file)
-    
-    output(((i-1)/2)+1,1) = output_text_file(i);
-    output(((i-1)/2)+1,2) = output_text_file(i+1);
-    
-end
-
-
-total_difference = sum(abs(input_wav_file - output));
-
-
-fclose(output_text_file_id);
+total_difference = sum(abs(input_wav_file - output_text_file));
