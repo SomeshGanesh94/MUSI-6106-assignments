@@ -13,7 +13,7 @@ output_text_file_id = fopen('/Users/someshganesh/Documents/GitHub/MUSI-6106-assi
 output_text_file = fscanf(output_text_file_id, '%f');
 output = zeros(132300,2);
 
-for i=1:2:3*44100
+for i=1:2:length(output_text_file)
     
     output(((i-1)/2)+1,1) = output_text_file(i);
     output(((i-1)/2)+1,2) = output_text_file(i+1);
@@ -21,7 +21,7 @@ for i=1:2:3*44100
 end
 
 
-difference = abs(input_wav_file - output);
+total_difference = sum(abs(input_wav_file - output));
 
 
 fclose(output_text_file_id);
