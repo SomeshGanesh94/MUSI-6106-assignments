@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
         
         for (int j = 0; j < int(block_size); j++)
         {
-            outfile << ppfAudioData[0][frame_no*int(block_size) + j] << "\t" << ppfAudioData[1][frame_no*int(block_size) + j] << endl;
+            outfile << ppfAudioData[0][j] << "\t" << ppfAudioData[1][j] << endl;
         }
         frame_no++;
     }
