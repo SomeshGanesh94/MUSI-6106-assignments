@@ -25,8 +25,10 @@ int main(int argc, char* argv[])
     clock_t                 time = 0;
 
     float                   **ppfAudioData = 0;
+    float                   **ppfAudioOutputData = 0;
 
     CAudioFileIf            *phAudioFile = 0;
+    CAudioFileIf            *phAudioOutputFile = 0;
     std::fstream            hOutputFile;
     CAudioFileIf::FileSpec_t stFileSpec;
 
@@ -44,34 +46,33 @@ int main(int argc, char* argv[])
     else
     {
         sInputFilePath = argv[1];
-        sOutputFilePath = sInputFilePath + ".txt";
+        sOutputFilePath = argv[2];
     }
 
     //////////////////////////////////////////////////////////////////////////////
     // open the input wave file
     CAudioFileIf::create(phAudioFile);
+    CAudioFileIf::create(phAudioOutputFile);
+    phAudioFile->getFileSpec(stFileSpec);
     phAudioFile->openFile(sInputFilePath, CAudioFileIf::kFileRead);
-    if (!phAudioFile->isOpen())
+    phAudioOutputFile->openFile(sOutputFilePath, CAudioFileIf::kFileWrite, &stFileSpec);
+    if (!phAudioFile->isOpen() && !phAudioOutputFile->isOpen())
     {
         cout << "Wave file open error!";
         return -1;
     }
-    phAudioFile->getFileSpec(stFileSpec);
+    
 
-    //////////////////////////////////////////////////////////////////////////////
-    // open the output text file
-    hOutputFile.open(sOutputFilePath.c_str(), std::ios::out);
-    if (!hOutputFile.is_open())
-    {
-        cout << "Text file open error!";
-        return -1;
-    }
 
     //////////////////////////////////////////////////////////////////////////////
     // allocate memory
     ppfAudioData = new float*[stFileSpec.iNumChannels];
     for (int i = 0; i < stFileSpec.iNumChannels; i++)
         ppfAudioData[i] = new float[kBlockSize];
+    
+    ppfAudioOutputData = new float*[stFileSpec.iNumChannels];
+    for (int i = 0; i < stFileSpec.iNumChannels; i++)
+        ppfAudioOutputData[i] = new float[kBlockSize];
 
     time = clock();
     //////////////////////////////////////////////////////////////////////////////
@@ -87,10 +88,12 @@ int main(int argc, char* argv[])
         {
             for (int c = 0; c < stFileSpec.iNumChannels; c++)
             {
-                hOutputFile << ppfAudioData[c][i] << "\t";
+                pInstance -> process (ppfAudioData, ppfAudioOutputData, iNumFrames);
+                
             }
-            hOutputFile << endl;
         }
+        
+        phAudioOutputFile->writeData(ppfAudioOutputData, iNumFrames);
     }
 
     cout << "\nreading/writing done in: \t" << (clock() - time)*1.F / CLOCKS_PER_SEC << " seconds." << endl;
@@ -98,12 +101,17 @@ int main(int argc, char* argv[])
     //////////////////////////////////////////////////////////////////////////////
     // clean-up
     CAudioFileIf::destroy(phAudioFile);
-    hOutputFile.close();
+    CAudioFileIf::destroy(phAudioOutputFile);
 
     for (int i = 0; i < stFileSpec.iNumChannels; i++)
+    {
         delete[] ppfAudioData[i];
+        delete[] ppfAudioOutputData[i];
+    }
     delete[] ppfAudioData;
+    delete[] ppfAudioOutputData;
     ppfAudioData = 0;
+    ppfAudioOutputData = 0;
 
     return 0;
 
