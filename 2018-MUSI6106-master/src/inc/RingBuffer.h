@@ -47,6 +47,19 @@ public:
     void putPostInc (const T* ptNewBuff, int iLength)
     {
         // dummy
+        if(iLength < (m_iBuffLength - m_iWriteIdx))
+        {
+            std::memcpy(&m_ptBuff[m_iWriteIdx], ptNewBuff, sizeof(T)*iLength);
+            m_iWriteIdx += iLength;
+        }
+        else
+        {
+            int iLeftOver = m_iBuffLength - m_iWriteIdx;
+            std::memcpy(&m_ptBuff[m_iWriteIdx], ptNewBuff, sizeof(T)*iLeftOver);
+            std::memcpy(&m_ptBuff[0], &ptNewBuff[iLeftOver], sizeof(T)*(iLength - iLeftOver));
+            m_iWriteIdx = (iLength - iLeftOver);
+        }
+        
     }
 
     /*! add a new value of type T to write index
