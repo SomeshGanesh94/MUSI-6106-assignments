@@ -25,16 +25,12 @@ public:
         kNumVibratoParams
     };
     
-    CVibrato();
-    
-    ~CVibrato();
-    
     static Error_t create (CVibrato*& pCVibrato);
     
     static Error_t destroy (CVibrato*& pCVibrato);
     
-    Error_t init (float fSampleRateInHz, int iNumChannels); // put arguments here
-
+    Error_t init (float fSampleRateInHz, float fModFrequencyInHz, float fWidthInHz, int iNumChannels);
+    
     Error_t reset();
     
     Error_t setParam(VibratoParam_t eParam, float fParamValue);
@@ -43,17 +39,23 @@ public:
     
     Error_t process(float **ppfInputBuffer, float **ppfOutputBuffer, int iNumberOfFrames);
     
+protected:
+    
+    CVibrato();
+    
+    ~CVibrato();
+    
 private:
     
     bool m_bIsInitialized;
     
     CLfo *m_pCLfo;
-    CRingBuffer<float> *m_pCRingbuffer;
     
-    float m_fSampleRateInHz;
+    float m_fSampleRateInSamples;
     float m_fModFreqInSamples;
     float m_fWidthInSamples;
-
+    
+    int   m_iNumChannels;
 };
 
 #endif // #if !defined(__Vibrato_hdr__)
