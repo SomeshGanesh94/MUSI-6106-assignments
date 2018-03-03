@@ -2,6 +2,8 @@
 // standard headers
 
 // project headers
+#include <iostream>
+
 #include "MUSI6106Config.h"
 
 #include "ErrorDef.h"
@@ -11,18 +13,18 @@
 #include "Lfo.h"
 #include "Vibrato.h"
 
-CVibrato::CVibrato(): m_bIsInitialized(false), m_pCLfo(0), m_fSampleRateInSamples(0), m_fModFreqInSamples(0), m_fWidthInSamples(0), m_iNumChannels(0)
+CVibrato::CVibrato(): m_bIsInitialized(false), m_pCLfo(0), m_pCRingBuffer(0), m_fSampleRateInSamples(0), m_fModFreqInSamples(0), m_fWidthInSamples(0), m_iNumChannels(0)
 {
     this->reset();
-    
-    m_pCLfo = new CLfo ();
 }
 
 CVibrato::~CVibrato()
 {
     this->reset();
     
-    delete m_pCLfo;
+    delete [] m_pCRingBuffer;
+    m_pCRingBuffer = 0;
+    delete [] m_pCLfo;
     m_pCLfo = 0;
 }
 
@@ -60,9 +62,18 @@ Error_t CVibrato::init(float fSampleRateInHz, float fModFrequencyInHz, float fWi
         return kFunctionInvalidArgsError;
     
     m_fSampleRateInSamples = fSampleRateInHz;
-    m_fModFreqInSamples = round(fModFrequencyInHz / m_fSampleRateInSamples);
-    m_fWidthInSamples = fWidthInHz;
+    m_fModFreqInSamples = fModFrequencyInHz / m_fSampleRateInSamples;
+//    std::cout << m_fModFreqInSamples << std::endl;
+//    m_fModFreqInSamples = fModFrequencyInHz;
+    m_fWidthInSamples = fWidthInHz * m_fSampleRateInSamples;
     m_iNumChannels = iNumChannels;
+    
+    m_pCLfo = new CLfo (m_fModFreqInSamples, m_fWidthInSamples, m_fSampleRateInSamples);
+    m_pCLfo->processLfo();
+    
+    int iLength = int(2 + m_fWidthInSamples + m_fWidthInSamples * 2);
+    //    std::cout << iLength << std::endl;
+    m_pCRingBuffer = new CRingBuffer<float>(iLength);
     
     m_bIsInitialized = true;
     
@@ -73,6 +84,8 @@ Error_t CVibrato::reset()
 {
     delete m_pCLfo;
     m_pCLfo = 0;
+    delete m_pCRingBuffer;
+    m_pCRingBuffer = 0;
     
     m_fSampleRateInSamples = 0;
     m_fModFreqInSamples = 0;
@@ -91,8 +104,9 @@ Error_t CVibrato::setParam(VibratoParam_t eParam, float fParamValue)
     {
         case kParamModFreq:
             m_fModFreqInSamples = round(fParamValue / m_fSampleRateInSamples);
+            m_pCLfo->setModFreq(m_fModFreqInSamples);
         case kParamWidth:
-            m_fWidthInSamples = fParamValue;
+            m_fWidthInSamples = fParamValue * m_fSampleRateInSamples;
         case kSampleRate:
             m_fSampleRateInSamples = fParamValue;
         case kNumVibratoParams:
@@ -130,12 +144,21 @@ Error_t CVibrato::process(float **ppfInputBuffer, float **ppfOutputBuffer, int i
         {
             //get value from LFO
             //placeholder = mod
+            float mod = m_pCLfo->returnLfoVal();
+//            std::cout<< mod << std::endl;
             
             float fDelay = 1 + m_fWidthInSamples + m_fWidthInSamples * mod;
             int iDelayRounded = floor(fDelay);
             float fFracValue = fDelay - iDelayRounded;
-            m_pCLfo->
-            ppfOutputBuffer[i][j] = delayLine[j+1]*fFracValue + delayLine[j]*(1 - fFracValue);
+            
+            m_pCRingBuffer->put(ppfInputBuffer[i][j]);
+            m_pCRingBuffer->setWriteIdx(m_pCRingBuffer->getWriteIdx()-1);
+//            std::cout << mod << std::endl;
+            
+            ppfOutputBuffer[i][j] = m_pCRingBuffer->get(j+1)*fFracValue + m_pCRingBuffer->get(j)*(1 - fFracValue);
+//            ppfOutputBuffer[i][j] = m_pCRingBuffer->get(fDelay);
+//            std::cout << ppfInputBuffer[i][j] << " " << ppfOutputBuffer[i][j] << std::endl;
+            m_pCRingBuffer->setReadIdx(m_pCRingBuffer->getReadIdx()-1);
         }
     }
     
