@@ -11,14 +11,13 @@
 class CLfo
 {
 public:
-    CLfo(float modFreq, float Width, float sampleRate):
+    CLfo(float fModFreqInSamples, float fModWidthInSamples, float fSampleRate):
     m_pCRingBuffer(0),
-    m_fModFreq(modFreq),
-    m_fWidth(Width),
-    m_fSampleRateInHz(sampleRate),
+    m_fModFreqInSamples(fModFreqInSamples),
+    m_fWidth(fModWidthInSamples),
+    m_fSampleRateInHz(fSampleRate),
     m_fReadIdx(0)
     {
-        m_iBufferLength = int(m_fSampleRateInHz / modFreq);
         m_pCRingBuffer = new CRingBuffer<float>(m_iBufferLength);
     }
     
@@ -31,34 +30,42 @@ public:
     // set parameters
     Error_t setModFreq(float modFreq)
     {
-        m_fModFreq = modFreq;
+        m_fModFreqInSamples = modFreq;
         return kNoError;
     }
     
     //return current values
     float returnLfoVal()
     {
-        float fLfoVal =  m_pCRingBuffer->getPostInc();
+        
+        float fLfoVal = m_pCRingBuffer->get(m_fReadIdx);
+        
+        m_fReadIdx = m_fReadIdx + m_fModFreqInSamples * m_iBufferLength;
+        
+        if (m_fReadIdx >= m_iBufferLength)
+            m_fReadIdx -= m_iBufferLength;
+        
         return fLfoVal;
+        
     }
     
     //LFO waveform generation
     void processLfo()
     {
         float *pfWaveformBuffer = new float [m_iBufferLength];
-        CSynthesis::generateSine(pfWaveformBuffer, m_fModFreq, m_fSampleRateInHz, m_iBufferLength);
-        for (int i = 0; i < m_iBufferLength; i++)
-        {
-            m_pCRingBuffer-> putPostInc(pfWaveformBuffer[i]);
-        }
+        
+        CSynthesis::generateSine(pfWaveformBuffer, m_fModFreqInSamples * m_fSampleRateInHz, m_fSampleRateInHz, m_iBufferLength);
+        
+        m_pCRingBuffer-> putPostInc(pfWaveformBuffer, m_iBufferLength);
+        
         delete [] pfWaveformBuffer;
     }
     
 private:
     
-    int                             m_iBufferLength;
+    int                             m_iBufferLength = int(44100/10);
     CRingBuffer<float>              *m_pCRingBuffer;
-    float                           m_fModFreq;
+    float                           m_fModFreqInSamples;
     float                           m_fWidth;
     float                           m_fSampleRateInHz;
     float                           m_fReadIdx;

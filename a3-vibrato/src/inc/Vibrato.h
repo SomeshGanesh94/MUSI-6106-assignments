@@ -50,7 +50,7 @@ private:
     bool m_bIsInitialized;
     
     CLfo *m_pCLfo;
-    CRingBuffer<float> *m_pCRingBuffer;
+    CRingBuffer<float> **m_ppCRingBuffer;
     
     float m_fSampleRateInSamples;
     float m_fModFreqInSamples;

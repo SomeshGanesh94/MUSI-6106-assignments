@@ -13,7 +13,7 @@
 #include "Lfo.h"
 #include "Vibrato.h"
 
-CVibrato::CVibrato(): m_bIsInitialized(false), m_pCLfo(0), m_pCRingBuffer(0), m_fSampleRateInSamples(0), m_fModFreqInSamples(0), m_fWidthInSamples(0), m_iNumChannels(0)
+CVibrato::CVibrato(): m_bIsInitialized(false), m_pCLfo(0), m_ppCRingBuffer(0), m_fSampleRateInSamples(0), m_fModFreqInSamples(0), m_fWidthInSamples(0), m_iNumChannels(0)
 {
     this->reset();
 }
@@ -21,11 +21,6 @@ CVibrato::CVibrato(): m_bIsInitialized(false), m_pCLfo(0), m_pCRingBuffer(0), m_
 CVibrato::~CVibrato()
 {
     this->reset();
-    
-    delete [] m_pCRingBuffer;
-    m_pCRingBuffer = 0;
-    delete [] m_pCLfo;
-    m_pCLfo = 0;
 }
 
 Error_t CVibrato::create(CVibrato*& pCMyProject)
@@ -63,17 +58,17 @@ Error_t CVibrato::init(float fSampleRateInHz, float fModFrequencyInHz, float fWi
     
     m_fSampleRateInSamples = fSampleRateInHz;
     m_fModFreqInSamples = fModFrequencyInHz / m_fSampleRateInSamples;
-//    std::cout << m_fModFreqInSamples << std::endl;
-//    m_fModFreqInSamples = fModFrequencyInHz;
     m_fWidthInSamples = fWidthInHz * m_fSampleRateInSamples;
     m_iNumChannels = iNumChannels;
     
     m_pCLfo = new CLfo (m_fModFreqInSamples, m_fWidthInSamples, m_fSampleRateInSamples);
     m_pCLfo->processLfo();
     
-    int iLength = int(2 + m_fWidthInSamples + m_fWidthInSamples * 2);
-    //    std::cout << iLength << std::endl;
-    m_pCRingBuffer = new CRingBuffer<float>(iLength);
+    m_ppCRingBuffer = new CRingBuffer<float>* [m_iNumChannels];
+    for (int i = 0; i < m_iNumChannels; i++)
+    {
+        m_ppCRingBuffer[i] = new CRingBuffer<float> (int(2 + m_fWidthInSamples + m_fWidthInSamples * 2));
+    }
     
     m_bIsInitialized = true;
     
@@ -84,12 +79,19 @@ Error_t CVibrato::reset()
 {
     delete m_pCLfo;
     m_pCLfo = 0;
-    delete m_pCRingBuffer;
-    m_pCRingBuffer = 0;
+    
+    for (int i = 0; i < m_iNumChannels; i++)
+    {
+        delete m_ppCRingBuffer[i];
+    }
+    delete [] m_ppCRingBuffer;
+    m_ppCRingBuffer = 0;
     
     m_fSampleRateInSamples = 0;
     m_fModFreqInSamples = 0;
     m_fWidthInSamples = 0;
+    m_iNumChannels = 0;
+    
     m_bIsInitialized = false;
     
     return kNoError;
@@ -103,7 +105,7 @@ Error_t CVibrato::setParam(VibratoParam_t eParam, float fParamValue)
     switch(eParam)
     {
         case kParamModFreq:
-            m_fModFreqInSamples = round(fParamValue / m_fSampleRateInSamples);
+            m_fModFreqInSamples = fParamValue / m_fSampleRateInSamples;
             m_pCLfo->setModFreq(m_fModFreqInSamples);
         case kParamWidth:
             m_fWidthInSamples = fParamValue * m_fSampleRateInSamples;
@@ -142,23 +144,23 @@ Error_t CVibrato::process(float **ppfInputBuffer, float **ppfOutputBuffer, int i
     {
         for (int j = 0; j < iNumberOfFrames; j++)
         {
-            //get value from LFO
-            //placeholder = mod
-            float mod = m_pCLfo->returnLfoVal();
+            
+            float fMod = m_pCLfo->returnLfoVal();
 //            std::cout<< mod << std::endl;
             
-            float fDelay = 1 + m_fWidthInSamples + m_fWidthInSamples * mod;
-            int iDelayRounded = floor(fDelay);
-            float fFracValue = fDelay - iDelayRounded;
+            float fDelay = 1 + m_fWidthInSamples + m_fWidthInSamples * fMod;
+//            int iDelayRounded = floor(fDelay);
+//            float fFracValue = fDelay - iDelayRounded;
             
-            m_pCRingBuffer->put(ppfInputBuffer[i][j]);
-            m_pCRingBuffer->setWriteIdx(m_pCRingBuffer->getWriteIdx()-1);
+            m_ppCRingBuffer[i]->putPostInc(ppfInputBuffer[i][j]);
+//            m_pCRingBuffer->setWriteIdx(m_pCRingBuffer->getWriteIdx()-1);
 //            std::cout << mod << std::endl;
             
-            ppfOutputBuffer[i][j] = m_pCRingBuffer->get(j+1)*fFracValue + m_pCRingBuffer->get(j)*(1 - fFracValue);
-//            ppfOutputBuffer[i][j] = m_pCRingBuffer->get(fDelay);
+//            ppfOutputBuffer[i][j] = m_pCRingBuffer->get(j+1)*fFracValue + m_pCRingBuffer->get(j)*(1 - fFracValue);
+            ppfOutputBuffer[i][j] = m_ppCRingBuffer[i]->get(fDelay);
+            m_ppCRingBuffer[i]->getPostInc();
 //            std::cout << ppfInputBuffer[i][j] << " " << ppfOutputBuffer[i][j] << std::endl;
-            m_pCRingBuffer->setReadIdx(m_pCRingBuffer->getReadIdx()-1);
+//            m_pCRingBuffer->setReadIdx(m_pCRingBuffer->getReadIdx()-1);
         }
     }
     

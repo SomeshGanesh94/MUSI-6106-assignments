@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
     //////////////////////////////////////////////////////////////////////////////
     // Init Comb Filter
     CVibrato::create(pCVibrato);
-    pCVibrato->init(fSampleRate, 14, 0.001, 1);
+    pCVibrato->init(fSampleRate, 10, 0.001, 1);
     
     // set parameters of the comb filter
     
