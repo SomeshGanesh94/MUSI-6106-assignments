@@ -31,10 +31,14 @@ public:
     Error_t setParam(float fParamValue)
     {
         m_fModFreqInSamples = fParamValue;
-        m_iBufferLength = 1 / m_fModFreqInSamples;
+        if (m_fModFreqInSamples == 0)
+            m_iBufferLength = 1;
+        else
+            m_iBufferLength = 1 / m_fModFreqInSamples;
         
         delete m_pCRingBuffer;
         m_pCRingBuffer = new CRingBuffer<float>(m_iBufferLength);
+        this->process();
         
         return kNoError;
     }
