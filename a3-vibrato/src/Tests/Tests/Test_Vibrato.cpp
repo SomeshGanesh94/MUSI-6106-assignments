@@ -207,7 +207,46 @@ SUITE(Vibrato)
         }
     }
 
+    // unit tests
+    TEST_FIXTURE(VibratoData, SetAndGetModFreq)
+    {
+        pCVibrato->reset();
+        fSampleRateInHz = 44100;
+        fModInHz = 10;
+        fWidth = 0.001;
+        iNumChannels = 1;
+        
+        pCVibrato->init(fSampleRateInHz, fModInHz, fWidth, iNumChannels);
+        float fModFreq[4] = {-100, 0, 100, 50000};
+        float fResults[4] = {10, 0, 100, 100};
+
+        for (int i = 0; i < 4; i++)
+        {
+            pCVibrato->setParam(CVibrato::kParamModFreq, fModFreq[i]);
+            CHECK_CLOSE(pCVibrato->getParam(CVibrato::kParamModFreq), fResults[i], 1e-3);
+        }
+        
+    }
     
+    TEST_FIXTURE(VibratoData, SetAndGetWidth)
+    {
+        pCVibrato->reset();
+        fSampleRateInHz = 44100;
+        fModInHz = 10;
+        fBasicDelay = 0.1;
+        iNumChannels = 1;
+        
+        pCVibrato->init(fSampleRateInHz, fModInHz, fBasicDelay, iNumChannels);
+        float fWidth[4] = {-100, 0, 0.001, 0.2};
+        float fResults[4] = {0.1, 0, 0.001, 0.001};
+        
+        for(int i = 0;i < 4; i++)
+        {
+            pCVibrato->setParam(CVibrato::kParamWidth, fWidth[i]);
+            float x = pCVibrato->getParam(CVibrato::kParamWidth);
+            CHECK_CLOSE(pCVibrato->getParam(CVibrato::kParamWidth), fResults[i], 1e-3);
+        }
+    }
     
     
     
