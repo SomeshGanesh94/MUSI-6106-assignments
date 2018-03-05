@@ -1,10 +1,6 @@
-/* Design choices for Vibrato class interface:
- We implemented an interface similar to the comb filter class with a standard interface for users or developers to interact with. Trying to be consistent with other code in this repository, we used static methods for creating and destroying instances of the class and kept the constructors and destructors in the protected section of the class. The init() function is the place to basically allocate memory, set parameter ranges and the parameters themselves initially since some of the ranges depend on the parameters. A standard reset() function deletes all data and sets values to 0. We have the usual setParam and getParam functions to set and acccess values within the parameter ranges. The setParam function accordingly calls some functions in the LFO class as well to ensure that any parameter changes here don't break the code or make it not work in the right way. The final process() function just pulls values from the LFO buffer and performs simple operations to get the final result and store it in an output buffer. The parameter ranges values and function are not kept public so that they cannot be tampered with and can only be set on initialization. The core variables for the class are kept private.
- 
+/**
+ *  CVibrator Class Source File
  */
-
-
-// standard headers
 
 // project headers
 #include <iostream>
@@ -17,17 +13,24 @@
 
 #include "Lfo.h"
 #include "Vibrato.h"
-
+/**
+ *   CVibrato Constructor
+ */
 CVibrato::CVibrato(): m_bIsInitialized(false), m_pCLfo(0), m_ppCRingBuffer(0), m_fSampleRateInSamples(0), m_fModFreqInSamples(0), m_fWidthInSamples(0), m_fDelayInSamples(0), m_iNumChannels(0)
 {
     this->reset();
 }
-
+/**
+ *   CVibrato Destructor
+ */
 CVibrato::~CVibrato()
 {
     this->reset();
 }
-
+/**
+ * Static Function allow to Access class function without
+ * creating the object
+ */
 Error_t CVibrato::create(CVibrato*& pCMyProject)
 {
     pCMyProject = new CVibrato ();
@@ -37,7 +40,10 @@ Error_t CVibrato::create(CVibrato*& pCMyProject)
     
     return kNoError;
 }
-
+/**
+ * Destroy CVibrato Object
+ * Memory Clean
+ */
 Error_t CVibrato::destroy(CVibrato*& pCMyProject)
 {
     if(!pCMyProject)
@@ -50,7 +56,9 @@ Error_t CVibrato::destroy(CVibrato*& pCMyProject)
     
     return kNoError;
 }
-
+/**
+ *   CVibrato Class Prameter Initialization
+ */
 Error_t CVibrato::init(float fSampleRateInHz, float fModFrequencyInHz, float fBasicDelayInSec, int iNumChannels)
 {
     this->reset();
@@ -84,7 +92,9 @@ Error_t CVibrato::init(float fSampleRateInHz, float fModFrequencyInHz, float fBa
     
     return kNoError;
 }
-
+/**
+ *   Reset CVibrato Prameters
+ */
 Error_t CVibrato::reset()
 {
     delete m_pCLfo;
@@ -107,7 +117,9 @@ Error_t CVibrato::reset()
     
     return kNoError;
 }
-
+/**
+ *  Parameter Range Check for CVibrato Class
+ */
 bool CVibrato::isParamInRange(VibratoParam_t eParam, float fParamValue)
 {
     if (fParamValue < m_aafParamRange[eParam][0] || fParamValue > m_aafParamRange[eParam][1])
@@ -119,7 +131,9 @@ bool CVibrato::isParamInRange(VibratoParam_t eParam, float fParamValue)
         return true;
     }
 }
-
+/**
+ *  Parameter Setup for CVibrato Class
+ */
 Error_t CVibrato::setParam(VibratoParam_t eParam, float fParamValue)
 {
     if(!m_bIsInitialized)
@@ -148,7 +162,9 @@ Error_t CVibrato::setParam(VibratoParam_t eParam, float fParamValue)
     }
     return kNoError;
 }
-
+/**
+ *  Return Parameter Values
+ */
 float CVibrato::getParam(VibratoParam_t eParam) const
 {
     if (!m_bIsInitialized)
@@ -168,7 +184,9 @@ float CVibrato::getParam(VibratoParam_t eParam) const
             return kFunctionInvalidArgsError;
     }
 }
-
+/**
+ *  Apply CVibrato on Given Inputs
+ */
 Error_t CVibrato::process(float **ppfInputBuffer, float **ppfOutputBuffer, int iNumberOfFrames)
 {
     if (!m_bIsInitialized)
