@@ -9,8 +9,7 @@
 #include "Vibrato.h"
 #include "RingBuffer.h"
 
-using std::cout;
-using std::endl;
+using namespace::std;
 
 // local function declarations
 void    showClInfo();
@@ -24,7 +23,11 @@ int main(int argc, char* argv[])
     
     static const int            kBlockSize = 1024;
     long long                   iNumFrames = kBlockSize;
-    float                       fSampleRate = 44100;
+    
+    float                       fSampleRate;
+    float                       fModFrequencyInHz;
+    float                       fBasicDelayInSec;
+    float                       fModWidthInSec;
     
     clock_t                     time = 0;
     
@@ -36,21 +39,26 @@ int main(int argc, char* argv[])
     
     CAudioFileIf::FileSpec_t    stFileSpec;
     
-    CVibrato               *pCVibrato = 0;
-    
-    CRingBuffer<float>          *pCRingBuffer = 0;
+    CVibrato                    *pCVibrato = 0;
     
     showClInfo();
     
     //////////////////////////////////////////////////////////////////////////////
     // parse command line arguments
-    // arguments should be in this sequence: (input_file_path filter_type delay_time gain output_file_path)
-
-//    pCRingBuffer = new CRingBuffer<float>(1024);
-//    pCRingBuffer->putPostInc(1);
+    // arguments should be in this sequence: (input_file_path output_file_path sample_rate mod_frequency mod_delay mod_width)
     
     sInputFilePath = argv[1];
     sOutputFilePath = argv[2];
+    fSampleRate = atof(argv[3]);
+    fModFrequencyInHz = atof(argv[4]);
+    fBasicDelayInSec = atof(argv[5]);
+    fModWidthInSec = atof(argv[6]);
+    
+    if(argc < 7)
+    {
+        cout << "Incorrect number of arguments!" << endl;
+        return -1;
+    }
     
     //////////////////////////////////////////////////////////////////////////////
     // open the input wave file
@@ -64,23 +72,31 @@ int main(int argc, char* argv[])
     if (!phAudioFile->isOpen())
     {
         cout << "Input file open error!";
+        
+        CAudioFileIf::destroy(phAudioFile);
+        CAudioFileIf::destroy(phAudioOutputFile);
         return -1;
     }
     else if (!phAudioOutputFile->isOpen())
     {
         cout << "Output file cannot be initialized!";
+        
+        CAudioFileIf::destroy(phAudioFile);
+        CAudioFileIf::destroy(phAudioOutputFile);
         return -1;
     }
     
     //////////////////////////////////////////////////////////////////////////////
-    // Init Comb Filter
+    // Init vibrato
     CVibrato::create(pCVibrato);
-    pCVibrato->init(fSampleRate, 10, 0.001, 1);
+    pCVibrato->init(fSampleRate, fModFrequencyInHz, fBasicDelayInSec, stFileSpec.iNumChannels);
     
-    // set parameters of the comb filter
+    // Set parameters of vibrato
+    pCVibrato->setParam(CVibrato::kParamModFreq, fModFrequencyInHz);
+    pCVibrato->setParam(CVibrato::kParamWidth, fModWidthInSec);
     
     //////////////////////////////////////////////////////////////////////////////
-    // allocate memory
+    // Allocate memory
     ppfAudioData = new float*[stFileSpec.iNumChannels];
     for (int i = 0; i < stFileSpec.iNumChannels; i++)
         ppfAudioData[i] = new float[kBlockSize];
@@ -131,9 +147,3 @@ void showClInfo()
     
     return;
 }
-
-
-
-
-
-
