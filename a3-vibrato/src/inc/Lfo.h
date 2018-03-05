@@ -17,7 +17,10 @@ public:
     m_fSampleRateInHz(fSampleRate),
     m_fReadIdx(0)
     {
-        m_iBufferLength = 1 / m_fModFreqInSamples;
+        if (m_fModFreqInSamples == 0)
+            m_iBufferLength = 1;
+        else
+            m_iBufferLength = 1 / m_fModFreqInSamples;
         m_pCRingBuffer = new CRingBuffer<float>(m_iBufferLength);
     }
     
