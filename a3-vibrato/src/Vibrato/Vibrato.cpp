@@ -13,7 +13,7 @@
 #include "Lfo.h"
 #include "Vibrato.h"
 
-CVibrato::CVibrato(): m_bIsInitialized(false), m_pCLfo(0), m_ppCRingBuffer(0), m_fSampleRateInSamples(0), m_fModFreqInSamples(0), m_fWidthInSamples(0), m_iNumChannels(0)
+CVibrato::CVibrato(): m_bIsInitialized(false), m_pCLfo(0), m_ppCRingBuffer(0), m_fSampleRateInSamples(0), m_fModFreqInSamples(0), m_fWidthInSamples(0), m_fDelayInSamples(0), m_iNumChannels(0)
 {
     this->reset();
 }
@@ -46,23 +46,27 @@ Error_t CVibrato::destroy(CVibrato*& pCMyProject)
     return kNoError;
 }
 
-Error_t CVibrato::init(float fSampleRateInHz, float fModFrequencyInHz, float fWidthInHz, int iNumChannels)
+Error_t CVibrato::init(float fSampleRateInHz, float fModFrequencyInHz, float fBasicDelayInSec, int iNumChannels)
 {
     this->reset();
     
     if (fSampleRateInHz <=0     ||
-        iNumChannels <= 0       ||
-        fModFrequencyInHz <=0   ||
-        fWidthInHz <=0)
+        iNumChannels <= 0)
         return kFunctionInvalidArgsError;
     
     m_fSampleRateInSamples = fSampleRateInHz;
     m_fModFreqInSamples = fModFrequencyInHz / m_fSampleRateInSamples;
-    m_fWidthInSamples = fWidthInHz * m_fSampleRateInSamples;
+    m_fWidthInSamples = fBasicDelayInSec * m_fSampleRateInSamples;
+    m_fDelayInSamples = m_fWidthInSamples;
     m_iNumChannels = iNumChannels;
     
-    m_pCLfo = new CLfo (m_fModFreqInSamples, m_fWidthInSamples, m_fSampleRateInSamples);
-    m_pCLfo->processLfo();
+    m_aafParamRange[kParamModFreq][0] = 0;
+    m_aafParamRange[kParamModFreq][1] = m_fSampleRateInSamples / 2;
+    m_aafParamRange[kParamWidth][0] = 0;
+    m_aafParamRange[kParamWidth][1] = m_fDelayInSamples;
+    
+    m_pCLfo = new CLfo (m_fModFreqInSamples, m_fSampleRateInSamples);
+    m_pCLfo->process();
     
     m_ppCRingBuffer = new CRingBuffer<float>* [m_iNumChannels];
     for (int i = 0; i < m_iNumChannels; i++)
@@ -90,6 +94,7 @@ Error_t CVibrato::reset()
     m_fSampleRateInSamples = 0;
     m_fModFreqInSamples = 0;
     m_fWidthInSamples = 0;
+    m_fDelayInSamples = 0;
     m_iNumChannels = 0;
     
     m_bIsInitialized = false;
@@ -97,18 +102,35 @@ Error_t CVibrato::reset()
     return kNoError;
 }
 
+bool CVibrato::isParamInRange(VibratoParam_t eParam, float fParamValue)
+{
+    if (fParamValue < m_aafParamRange[eParam][0] || fParamValue > m_aafParamRange[eParam][1])
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
 Error_t CVibrato::setParam(VibratoParam_t eParam, float fParamValue)
 {
     if(!m_bIsInitialized)
         return kNotInitializedError;
 
+    if(!isParamInRange(eParam, fParamValue))
+        return kFunctionInvalidArgsError;
+    
     switch(eParam)
     {
         case kParamModFreq:
             m_fModFreqInSamples = fParamValue / m_fSampleRateInSamples;
-            m_pCLfo->setModFreq(m_fModFreqInSamples);
+            m_pCLfo->setParam(m_fModFreqInSamples);
         case kParamWidth:
             m_fWidthInSamples = fParamValue * m_fSampleRateInSamples;
+        case kParamDelay:
+            m_fDelayInSamples = fParamValue * m_fSampleRateInSamples;
         case kSampleRate:
             m_fSampleRateInSamples = fParamValue;
         case kNumVibratoParams:
@@ -128,6 +150,8 @@ float CVibrato::getParam(VibratoParam_t eParam) const
             return m_fModFreqInSamples;
         case kParamWidth:
             return m_fWidthInSamples;
+        case kParamDelay:
+            return m_fDelayInSamples;
         case kSampleRate:
             return m_fSampleRateInSamples;
         case kNumVibratoParams:
@@ -144,27 +168,16 @@ Error_t CVibrato::process(float **ppfInputBuffer, float **ppfOutputBuffer, int i
     {
         for (int j = 0; j < iNumberOfFrames; j++)
         {
-            
             float fMod = m_pCLfo->returnLfoVal();
-//            std::cout<< mod << std::endl;
             
             float fDelay = 1 + m_fWidthInSamples + m_fWidthInSamples * fMod;
-//            int iDelayRounded = floor(fDelay);
-//            float fFracValue = fDelay - iDelayRounded;
             
             m_ppCRingBuffer[i]->putPostInc(ppfInputBuffer[i][j]);
-//            m_pCRingBuffer->setWriteIdx(m_pCRingBuffer->getWriteIdx()-1);
-//            std::cout << mod << std::endl;
             
-//            ppfOutputBuffer[i][j] = m_pCRingBuffer->get(j+1)*fFracValue + m_pCRingBuffer->get(j)*(1 - fFracValue);
             ppfOutputBuffer[i][j] = m_ppCRingBuffer[i]->get(fDelay);
+            
             m_ppCRingBuffer[i]->getPostInc();
-//            std::cout << ppfInputBuffer[i][j] << " " << ppfOutputBuffer[i][j] << std::endl;
-//            m_pCRingBuffer->setReadIdx(m_pCRingBuffer->getReadIdx()-1);
         }
     }
-    
-    
-    
     return kNoError;
 }

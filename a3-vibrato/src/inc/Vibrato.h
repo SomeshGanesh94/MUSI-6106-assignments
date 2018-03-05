@@ -20,6 +20,7 @@ public:
     {
         kParamWidth,
         kParamModFreq,
+        kParamDelay,
         kSampleRate,
         
         kNumVibratoParams
@@ -44,10 +45,14 @@ protected:
     CVibrato();
     
     ~CVibrato();
+
+    float   m_aafParamRange[kNumVibratoParams][2];
     
 private:
     
     bool m_bIsInitialized;
+    
+    bool isParamInRange(VibratoParam_t eParam, float fParamValue);
     
     CLfo *m_pCLfo;
     CRingBuffer<float> **m_ppCRingBuffer;
@@ -55,6 +60,7 @@ private:
     float m_fSampleRateInSamples;
     float m_fModFreqInSamples;
     float m_fWidthInSamples;
+    float m_fDelayInSamples;
     
     int   m_iNumChannels;
 };
