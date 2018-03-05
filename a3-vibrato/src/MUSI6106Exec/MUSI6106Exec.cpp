@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
     }
     
     //////////////////////////////////////////////////////////////////////////////
-    // Init vibrato
+    // init vibrato
     CVibrato::create(pCVibrato);
     pCVibrato->init(fSampleRate, fModFrequencyInHz, fBasicDelayInSec, stFileSpec.iNumChannels);
     
@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
     pCVibrato->setParam(CVibrato::kParamWidth, fModWidthInSec);
     
     //////////////////////////////////////////////////////////////////////////////
-    // Allocate memory
+    // allocate memory
     ppfAudioData = new float*[stFileSpec.iNumChannels];
     for (int i = 0; i < stFileSpec.iNumChannels; i++)
         ppfAudioData[i] = new float[kBlockSize];
