@@ -19,7 +19,7 @@ VibratoPluginAudioProcessorEditor::VibratoPluginAudioProcessorEditor (VibratoPlu
     // editor's size to whatever you need it to be.
     setSize (400, 300);
     
-    m_slModWidth.setRange(0.0 , 0.5);
+    m_slModWidth.setRange(0.0 , 1.0);
     m_slModWidth.setTextValueSuffix("Modulation width in sec");
     m_slModWidth.addListener(this);
     addAndMakeVisible(m_slModWidth);
@@ -55,10 +55,7 @@ void VibratoPluginAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
-//    m_slModWidth.setBounds(5, 5, 100, 2000);
-//    m_slModFrequency.setBounds(20, 20, 100, 2000);
-//    m_tbBypass.setBounds(50, 50, 50, 50);
-//
+
     auto sliderLeft = 50;
     m_slModWidth.setBounds(sliderLeft, 20, getWidth() - sliderLeft - 10, 20);
     m_slModFrequency.setBounds(sliderLeft, 50, getWidth() - sliderLeft - 10, 20);
@@ -68,6 +65,7 @@ void VibratoPluginAudioProcessorEditor::resized()
 
 void VibratoPluginAudioProcessorEditor::sliderValueChanged(Slider* slider)
 {
+//    std::cout << "Slider value : " << (float)slider->getValue() << std::endl;
     if (slider == &m_slModWidth)
     {
         processor.setParam(CVibrato::kParamModWidthInS, (float)slider->getValue());
@@ -82,13 +80,6 @@ void VibratoPluginAudioProcessorEditor::buttonClicked(Button* button)
 {
     if (button == &m_tbBypass)
     {
-        if (button->getToggleState())
-        {
-//            processor.processBlockBypassed(<#AudioBuffer<float> &#>, <#juce::MidiBuffer &#>)
-        }
-        else
-        {
-//            processor.processBlock(<#AudioBuffer<float> &#>, <#juce::MidiBuffer &#>)
-        }
+        processor.setBypass(button->getToggleState());
     }
 }

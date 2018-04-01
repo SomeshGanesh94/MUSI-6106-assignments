@@ -25,11 +25,12 @@ VibratoPluginAudioProcessor::VibratoPluginAudioProcessor()
 #endif
 {
     CVibrato::createInstance(pCVibrato);
-    pCVibrato->initInstance(0.5, this->getSampleRate(), this->getTotalNumInputChannels());
 }
 
 VibratoPluginAudioProcessor::~VibratoPluginAudioProcessor()
 {
+    CVibrato::destroyInstance(pCVibrato);
+    pCVibrato = NULL;
 }
 
 //==============================================================================
@@ -99,6 +100,7 @@ void VibratoPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesP
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+    pCVibrato->initInstance(1.0, this->getSampleRate(), this->getTotalNumInputChannels());
 }
 
 void VibratoPluginAudioProcessor::releaseResources()
@@ -157,6 +159,8 @@ void VibratoPluginAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
         auto* channelData = buffer.getWritePointer (channel);
 
         // ..do something to the data...
+//        if (pCVibrato->m_bIsInitialized)
+        pCVibrato->process(&channelData, &channelData, 1);
     }
 }
 
@@ -190,6 +194,12 @@ void VibratoPluginAudioProcessor::setStateInformation (const void* data, int siz
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new VibratoPluginAudioProcessor();
+}
+
+void VibratoPluginAudioProcessor::setBypass(bool bValue)
+{
+    jassert(bValue==true || bValue==false);
+    m_bBypass = bValue;
 }
 
 void VibratoPluginAudioProcessor::setParam(CVibrato::VibratoParam_t eParam, float fParamValue)

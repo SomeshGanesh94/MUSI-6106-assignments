@@ -57,6 +57,8 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
     //==============================================================================
+    void setBypass(bool bValue);
+    
     void setParam (CVibrato::VibratoParam_t eParam, float fParamValue);
 
 private:
@@ -64,4 +66,5 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VibratoPluginAudioProcessor)
     
     CVibrato *pCVibrato = NULL;
+    bool m_bBypass = false;
 };

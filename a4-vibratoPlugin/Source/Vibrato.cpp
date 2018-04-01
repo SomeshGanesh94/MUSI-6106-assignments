@@ -109,7 +109,6 @@ Error_t CVibrato::resetInstance ()
 
 Error_t CVibrato::setParam( VibratoParam_t eParam, float fParamValue )
 {
-    std::cout << "Unsucessfully called setParam in Vibrato.cpp" << std::endl;
     if (!m_bIsInitialized)
         return kNotInitializedError;
     if (!isInParamRange(eParam, fParamValue))
@@ -125,7 +124,6 @@ Error_t CVibrato::setParam( VibratoParam_t eParam, float fParamValue )
         return kFunctionInvalidArgsError;
     }
 
-    std::cout << "Sucessfully called setParam in Vibrato.cpp" << std::endl;
     return kNoError;
 }
 
