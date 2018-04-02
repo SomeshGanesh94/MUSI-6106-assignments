@@ -154,14 +154,20 @@ void VibratoPluginAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
     // the samples and the outer loop is handling the channels.
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
+//    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+//    {
+//        auto channelData = buffer.getWritePointer (channel);
 
         // ..do something to the data...
-//        if (pCVibrato->m_bIsInitialized)
-        pCVibrato->process(&channelData, &channelData, 1);
-    }
+        if (pCVibrato->isInitialized())
+        {
+            pCVibrato->process((float **)buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), buffer.getNumSamples());
+        }
+        else
+        {
+            // process block by passed, no vibrato processing
+        }
+//    }
 }
 
 //==============================================================================
@@ -200,6 +206,11 @@ void VibratoPluginAudioProcessor::setBypass(bool bValue)
 {
     jassert(bValue==true || bValue==false);
     m_bBypass = bValue;
+}
+
+bool VibratoPluginAudioProcessor::getBypass()
+{
+    return m_bBypass;
 }
 
 void VibratoPluginAudioProcessor::setParam(CVibrato::VibratoParam_t eParam, float fParamValue)

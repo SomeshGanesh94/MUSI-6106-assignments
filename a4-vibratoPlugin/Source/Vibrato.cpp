@@ -162,6 +162,7 @@ Error_t CVibrato::process( float **ppfInputBuffer, float **ppfOutputBuffer, int 
         float fOffset = m_pCLfo->getNext();
         for (int c = 0; c < m_iNumChannels; c++)
         {
+            std::cout << "ppfInputBuffer[c][i] = " << ppfInputBuffer[c][i] << std::endl;
             m_ppCRingBuff[c]->putPostInc(ppfInputBuffer[c][i]);
 
             ppfOutputBuffer[c][i]   = m_ppCRingBuff[c]->get(fOffset);
@@ -170,4 +171,9 @@ Error_t CVibrato::process( float **ppfInputBuffer, float **ppfOutputBuffer, int 
     }
 
     return kNoError;
+}
+
+bool CVibrato::isInitialized()
+{
+    return m_bIsInitialized;
 }
