@@ -66,6 +66,6 @@ private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VibratoPluginAudioProcessor)
     
-    CVibrato *pCVibrato = NULL;
+    CVibrato *m_pCVibrato = NULL;
     bool m_bBypass = false;
 };

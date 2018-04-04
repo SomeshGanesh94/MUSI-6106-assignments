@@ -24,13 +24,13 @@ VibratoPluginAudioProcessor::VibratoPluginAudioProcessor()
                        )
 #endif
 {
-    CVibrato::createInstance(pCVibrato);
+    CVibrato::createInstance(m_pCVibrato);
 }
 
 VibratoPluginAudioProcessor::~VibratoPluginAudioProcessor()
 {
-    CVibrato::destroyInstance(pCVibrato);
-    pCVibrato = NULL;
+    CVibrato::destroyInstance(m_pCVibrato);
+    m_pCVibrato = NULL;
 }
 
 //==============================================================================
@@ -100,7 +100,7 @@ void VibratoPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesP
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
-    pCVibrato->initInstance(1.0, this->getSampleRate(), this->getTotalNumInputChannels());
+    m_pCVibrato->initInstance(0.01, sampleRate, this->getTotalNumInputChannels());
 }
 
 void VibratoPluginAudioProcessor::releaseResources()
@@ -156,15 +156,11 @@ void VibratoPluginAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
     // interleaved by keeping the same state.
 
     jassert(totalNumInputChannels==2 && totalNumOutputChannels==2);
-    if (pCVibrato->isInitialized())
+    if (m_pCVibrato->isInitialized())
     {
         if (! this->isBypass())
         {
-            pCVibrato->process((float **)buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), buffer.getNumSamples());
-        }
-        else
-        {
-            // by pass vibrato processing
+            m_pCVibrato->process((float **)buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), buffer.getNumSamples());
         }
     }
 }
@@ -214,6 +210,5 @@ bool VibratoPluginAudioProcessor::isBypass()
 
 void VibratoPluginAudioProcessor::setParam(CVibrato::VibratoParam_t eParam, float fParamValue)
 {
-    std::cout << "Processor setParam " << std::endl;
-    pCVibrato->setParam(eParam, fParamValue);
+    m_pCVibrato->setParam(eParam, fParamValue);
 }

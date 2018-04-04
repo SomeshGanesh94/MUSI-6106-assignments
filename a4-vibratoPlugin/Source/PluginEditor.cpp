@@ -19,12 +19,12 @@ VibratoPluginAudioProcessorEditor::VibratoPluginAudioProcessorEditor (VibratoPlu
     // editor's size to whatever you need it to be.
     setSize (400, 300);
     
-    m_slModWidth.setRange(0.0 , 1.0);
+    m_slModWidth.setRange(0.0 , 20.0);
     m_slModWidth.setTextValueSuffix("Modulation width in sec");
     m_slModWidth.addListener(this);
     addAndMakeVisible(m_slModWidth);
     
-    m_slModFrequency.setRange(0.0 , processor.getSampleRate()*0.5);
+    m_slModFrequency.setRange(0.0 , 20.0);
     m_slModFrequency.setTextValueSuffix("Modulation frequency in Hz");
     m_slModFrequency.addListener(this);
     addAndMakeVisible(m_slModFrequency);
@@ -65,14 +65,13 @@ void VibratoPluginAudioProcessorEditor::resized()
 
 void VibratoPluginAudioProcessorEditor::sliderValueChanged(Slider* slider)
 {
-//    std::cout << "Slider value : " << (float)slider->getValue() << std::endl;
     if (slider == &m_slModWidth)
     {
-        processor.setParam(CVibrato::kParamModWidthInS, (float)slider->getValue());
+        processor.setParam(CVibrato::VibratoParam_t::kParamModWidthInS, slider->getValue()/1000.0);
     }
     else if (slider == &m_slModFrequency)
     {
-        processor.setParam(CVibrato::kParamModFreqInHz, (float)slider->getValue());
+        processor.setParam(CVibrato::VibratoParam_t::kParamModFreqInHz, slider->getValue());
     }
 }
 
