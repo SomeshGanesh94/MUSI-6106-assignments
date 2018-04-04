@@ -6,7 +6,7 @@
 
 CDtw::CDtw( void )
 {
-    
+
 }
 
 CDtw::~CDtw( void )
@@ -16,12 +16,16 @@ CDtw::~CDtw( void )
 
 Error_t CDtw::init( int iNumRows, int iNumCols )
 {
+    if (iNumCols<=0 || iNumRows <=0)
+    {
+        return kFunctionInvalidArgsError;
+    }
     m_ppfCostMatrix = new m_sNode* [iNumRows];
     for (int row = 0; row < iNumRows; row++)
     {
         m_ppfCostMatrix[row] = new m_sNode [iNumCols];
     }
-    
+    m_ppfCostMatrix[0][0].length = 0;
     m_iNumCols = iNumCols;
     m_iNumRows = iNumRows;
     
@@ -35,26 +39,37 @@ Error_t CDtw::reset()
 
 Error_t CDtw::process(float **ppfDistanceMatrix)
 {
-    if (ppfDistanceMatrix==NULL)
+    if (ppfDistanceMatrix == 0)
+    {
+        return kFunctionInvalidArgsError;
+    }
+    if (*ppfDistanceMatrix==NULL)
     {
         return kNotInitializedError;
     }
     m_ppfCostMatrix[0][0].value = ppfDistanceMatrix[0][0];
     m_ppfCostMatrix[0][0].direction = kNumDirections;
-    m_ppfCostMatrix[0][0].length = 0;
+    m_ppfCostMatrix[0][0].length = 1;
     
-    for (int row = 1; row < m_iNumRows; row++)
+    
+    if (!(m_iNumRows==1))
     {
-        m_ppfCostMatrix[row][0].value = m_ppfCostMatrix[row-1][0].value + ppfDistanceMatrix[row][0];
-        m_ppfCostMatrix[row][0].direction = kVert;
-        m_ppfCostMatrix[row][0].length = m_ppfCostMatrix[row-1][0].length + 1;
+        for (int row = 1; row < m_iNumRows; row++)
+        {
+            m_ppfCostMatrix[row][0].value = m_ppfCostMatrix[row-1][0].value + ppfDistanceMatrix[row][0];
+            m_ppfCostMatrix[row][0].direction = kVert;
+            m_ppfCostMatrix[row][0].length = m_ppfCostMatrix[row-1][0].length + 1;
+        }
     }
     
-    for (int col = 1; col < m_iNumCols; col++)
+    if (!(m_iNumCols==1))
     {
-        m_ppfCostMatrix[0][col].value = m_ppfCostMatrix[col-1][0].value + ppfDistanceMatrix[0][col];
-        m_ppfCostMatrix[0][col].direction = kHoriz;
-        m_ppfCostMatrix[0][col].length = m_ppfCostMatrix[0][col-1].length + 1;
+        for (int col = 1; col < m_iNumCols; col++)
+        {
+            m_ppfCostMatrix[0][col].value = m_ppfCostMatrix[0][col-1].value + ppfDistanceMatrix[0][col];
+            m_ppfCostMatrix[0][col].direction = kHoriz;
+            m_ppfCostMatrix[0][col].length = m_ppfCostMatrix[0][col-1].length + 1;
+        }
     }
     
     float fTempValue;
