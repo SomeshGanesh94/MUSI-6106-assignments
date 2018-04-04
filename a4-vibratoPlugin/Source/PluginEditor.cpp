@@ -19,6 +19,14 @@ VibratoPluginAudioProcessorEditor::VibratoPluginAudioProcessorEditor (VibratoPlu
     // editor's size to whatever you need it to be.
     setSize (400, 300);
     
+    m_lPluginName.setText("Vibrato plugin: assignment 4", dontSendNotification);
+    m_lPluginName.setFont(18);
+    addAndMakeVisible(m_lPluginName);
+    
+    m_lPluginCreators.setText("Somesh Ganesh & Yongliang He", dontSendNotification);
+    m_lPluginCreators.setFont(10);
+    addAndMakeVisible(m_lPluginCreators);
+    
     m_lSlModWidth.setText("Modulation width", dontSendNotification);
     m_lSlModWidth.setFont(12);
     addAndMakeVisible(m_lSlModWidth);
@@ -66,15 +74,16 @@ void VibratoPluginAudioProcessorEditor::resized()
     // subcomponents in your editor..
 
     auto sliderLeft = 50;
-    m_lSlModWidth.setBounds(sliderLeft-5, -110, getWidth(), getHeight());
-    m_lSlModFrequency.setBounds(sliderLeft-5, -40, getWidth(), getHeight());
-    m_lTbBypass.setBounds(sliderLeft-5, 30, getWidth(), getHeight());
+    m_lPluginName.setBounds(90, -130, getWidth(), getHeight());
+    m_lPluginCreators.setBounds(125, -110, getWidth(), getHeight());
     
-    m_slModWidth.setBounds(sliderLeft, 60, getWidth() - sliderLeft - 10, 20);
-    m_slModFrequency.setBounds(sliderLeft, 130, getWidth() - sliderLeft - 10, 20);
-    m_tbBypass.setBounds(sliderLeft, 200, 50, 20);
+    m_lSlModWidth.setBounds(sliderLeft-5, -70, getWidth(), getHeight());
+    m_lSlModFrequency.setBounds(sliderLeft-5, 0, getWidth(), getHeight());
+    m_lTbBypass.setBounds(sliderLeft-5, 70, getWidth(), getHeight());
     
-
+    m_slModWidth.setBounds(sliderLeft, 100, getWidth() - sliderLeft - 10, 20);
+    m_slModFrequency.setBounds(sliderLeft, 170, getWidth() - sliderLeft - 10, 20);
+    m_tbBypass.setBounds(sliderLeft, 240, 50, 20);
 }
 
 void VibratoPluginAudioProcessorEditor::sliderValueChanged(Slider* slider)

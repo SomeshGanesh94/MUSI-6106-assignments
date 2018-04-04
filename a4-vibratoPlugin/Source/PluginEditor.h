@@ -39,6 +39,8 @@ private:
     
     ToggleButton m_tbBypass;
     
+    Label m_lPluginName;
+    Label m_lPluginCreators;
     Label m_lSlModWidth;
     Label m_lSlModFrequency;
     Label m_lTbBypass;
