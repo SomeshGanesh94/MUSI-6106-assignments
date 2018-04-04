@@ -70,6 +70,7 @@ private:
     {
         float value;
         Directions_t direction;
+        int length;
     };
     m_sNode **m_ppfCostMatrix;
     

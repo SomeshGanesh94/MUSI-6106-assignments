@@ -35,19 +35,26 @@ Error_t CDtw::reset()
 
 Error_t CDtw::process(float **ppfDistanceMatrix)
 {
+    if (ppfDistanceMatrix==NULL)
+    {
+        return kNotInitializedError;
+    }
     m_ppfCostMatrix[0][0].value = ppfDistanceMatrix[0][0];
     m_ppfCostMatrix[0][0].direction = kNumDirections;
+    m_ppfCostMatrix[0][0].length = 0;
     
     for (int row = 1; row < m_iNumRows; row++)
     {
         m_ppfCostMatrix[row][0].value = m_ppfCostMatrix[row-1][0].value + ppfDistanceMatrix[row][0];
         m_ppfCostMatrix[row][0].direction = kVert;
+        m_ppfCostMatrix[row][0].length = m_ppfCostMatrix[row-1][0].length + 1;
     }
     
     for (int col = 1; col < m_iNumCols; col++)
     {
         m_ppfCostMatrix[0][col].value = m_ppfCostMatrix[col-1][0].value + ppfDistanceMatrix[0][col];
         m_ppfCostMatrix[0][col].direction = kHoriz;
+        m_ppfCostMatrix[0][col].length = m_ppfCostMatrix[0][col-1].length + 1;
     }
     
     float fTempValue;
@@ -71,11 +78,13 @@ Error_t CDtw::process(float **ppfDistanceMatrix)
                 {
                     m_ppfCostMatrix[row][col].value = fCandidateH + ppfDistanceMatrix[row][col];
                     m_ppfCostMatrix[row][col].direction = kHoriz;
+                    m_ppfCostMatrix[row][col].length = m_ppfCostMatrix[row][col-1].length + 1;
                 }
                 else
                 {
                     m_ppfCostMatrix[row][col].value = fTempValue + ppfDistanceMatrix[row][col];
                     m_ppfCostMatrix[row][col].direction = dTempDirection;
+                    m_ppfCostMatrix[row][col].length = m_ppfCostMatrix[row-1][col-1].length + 1;
                 }
             }
             else
@@ -86,11 +95,13 @@ Error_t CDtw::process(float **ppfDistanceMatrix)
                 {
                     m_ppfCostMatrix[row][col].value = fCandidateH + ppfDistanceMatrix[row][col];
                     m_ppfCostMatrix[row][col].direction = kHoriz;
+                    m_ppfCostMatrix[row][col].length = m_ppfCostMatrix[row-1][col].length + 1;
                 }
                 else
                 {
                     m_ppfCostMatrix[row][col].value = fTempValue + ppfDistanceMatrix[row][col];
                     m_ppfCostMatrix[row][col].direction = dTempDirection;
+                    m_ppfCostMatrix[row][col].length = m_ppfCostMatrix[row-1][col-1].length + 1;
                 }
             }
         }
@@ -100,17 +111,40 @@ Error_t CDtw::process(float **ppfDistanceMatrix)
 }
 
 int CDtw::getPathLength()
-{    
-    return m_PathLength;
+{
+    return m_ppfCostMatrix[m_iNumRows-1][m_iNumCols-1].length;
 }
 
 float CDtw::getPathCost() const
 {
-    return m_PathCost;
+    return m_ppfCostMatrix[m_iNumRows-1][m_iNumCols-1].value;
 }
 
 Error_t CDtw::getPath( int **ppiPathResult ) const
 {
+    int row = m_iNumRows-1;
+    int col = m_iNumCols-1;
+    
+    for (int ele = m_ppfCostMatrix[m_iNumRows-1][m_iNumCols-1].length-1; ele >= 0 ; ele--)
+    {
+        ppiPathResult[0][ele] = row;
+        ppiPathResult[1][ele] = col;
+        
+        switch (m_ppfCostMatrix[row][col].direction)
+        {
+            case kDiag:
+                row -= 1;
+                col -= 1;
+                break;
+            case kVert:
+                row -= 1;
+                break;
+            case kHoriz:
+                col -= 1;
+                break;
+        }
+    }
+    
     return kNoError;
 }
 
