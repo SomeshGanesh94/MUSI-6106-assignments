@@ -40,7 +40,7 @@ VibratoPluginAudioProcessorEditor::VibratoPluginAudioProcessorEditor (VibratoPlu
     addAndMakeVisible(m_lTbBypass);
     
     m_slModWidth.setRange(0.0 , 20.0);
-    m_slModWidth.setTextValueSuffix("sec");
+    m_slModWidth.setTextValueSuffix("ms");
     m_slModWidth.addListener(this);
     addAndMakeVisible(m_slModWidth);
     
@@ -90,11 +90,13 @@ void VibratoPluginAudioProcessorEditor::sliderValueChanged(Slider* slider)
 {
     if (slider == &m_slModWidth)
     {
-        processor.setParam(CVibrato::VibratoParam_t::kParamModWidthInS, slider->getValue()/1000.0);
+//        processor.setParam(CVibrato::VibratoParam_t::kParamModWidthInS, slider->getValue());
+        processor.setChangedParam(CVibrato::VibratoParam_t::kParamModWidthInS, slider->getValue());
     }
     else if (slider == &m_slModFrequency)
     {
-        processor.setParam(CVibrato::VibratoParam_t::kParamModFreqInHz, slider->getValue());
+//        processor.setParam(CVibrato::VibratoParam_t::kParamModFreqInHz, slider->getValue());
+        processor.setChangedParam(CVibrato::VibratoParam_t::kParamModFreqInHz, slider->getValue());
     }
 }
 

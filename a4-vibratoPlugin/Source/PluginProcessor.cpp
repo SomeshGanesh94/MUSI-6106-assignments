@@ -25,12 +25,18 @@ VibratoPluginAudioProcessor::VibratoPluginAudioProcessor()
 #endif
 {
     CVibrato::createInstance(m_pCVibrato);
+    m_bBypass = false;
+    m_VChangedParam = CVibrato::VibratoParam_t::kNumVibratoParams;
+    m_fChangedParamValue = 0.0;
 }
 
 VibratoPluginAudioProcessor::~VibratoPluginAudioProcessor()
 {
     CVibrato::destroyInstance(m_pCVibrato);
     m_pCVibrato = NULL;
+    m_bBypass = false;
+    m_VChangedParam = CVibrato::VibratoParam_t::kNumVibratoParams;
+    m_fChangedParamValue = 0.0;
 }
 
 //==============================================================================
@@ -100,7 +106,7 @@ void VibratoPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesP
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
-    m_pCVibrato->initInstance(0.01, sampleRate, this->getTotalNumInputChannels());
+    m_pCVibrato->initInstance(1, sampleRate, this->getTotalNumInputChannels());
 }
 
 void VibratoPluginAudioProcessor::releaseResources()
@@ -155,11 +161,12 @@ void VibratoPluginAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
 
-    jassert(totalNumInputChannels==2 && totalNumOutputChannels==2);
+//    jassert(totalNumInputChannels==2 && totalNumOutputChannels==2);
     if (m_pCVibrato->isInitialized())
     {
         if (! this->isBypass())
         {
+            this->setParam(m_VChangedParam, m_fChangedParamValue);
             m_pCVibrato->process((float **)buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), buffer.getNumSamples());
         }
     }
@@ -210,5 +217,13 @@ bool VibratoPluginAudioProcessor::isBypass()
 
 void VibratoPluginAudioProcessor::setParam(CVibrato::VibratoParam_t eParam, float fParamValue)
 {
+    if (eParam == CVibrato::VibratoParam_t::kParamModWidthInS)
+        fParamValue /= 1000.0;
     m_pCVibrato->setParam(eParam, fParamValue);
+}
+
+void VibratoPluginAudioProcessor::setChangedParam(CVibrato::VibratoParam_t eParam, float fParamValue)
+{
+    m_VChangedParam = eParam;
+    m_fChangedParamValue = fParamValue;
 }
