@@ -12,6 +12,11 @@
 #include<iostream>
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "Vibrato.h"
+#define MOD_WIDTH_ID "modWidInMs"
+#define MOD_WIDTH_NAME "Mod width"
+#define MOD_FREQ_ID "modFreqInHz"
+#define MOD_FREQ_NAME "Mod frequency"
+
 
 //==============================================================================
 /**
@@ -57,10 +62,12 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
     //==============================================================================
-    void setBypass(bool bValue);
+    void setBypass(bool bValue, float fWidValue);
     
     void setParam (CVibrato::VibratoParam_t eParam, float fParamValue);
     void setChangedParam (CVibrato::VibratoParam_t eParam, float fParamValue);
+    AudioProcessorValueTreeState m_treeState;
+    
 
 private:
     //==============================================================================
@@ -70,5 +77,8 @@ private:
     bool m_bBypass;
     
     CVibrato::VibratoParam_t m_VChangedParam;
+    
     float m_fChangedParamValue;
+    
+    
 };

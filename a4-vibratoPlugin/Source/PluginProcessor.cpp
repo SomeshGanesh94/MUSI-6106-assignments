@@ -10,7 +10,6 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-
 //==============================================================================
 VibratoPluginAudioProcessor::VibratoPluginAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -21,13 +20,16 @@ VibratoPluginAudioProcessor::VibratoPluginAudioProcessor()
                       #endif
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),
+        m_treeState(*this, nullptr)
 #endif
 {
     CVibrato::createInstance(m_pCVibrato);
     m_bBypass = false;
     m_VChangedParam = CVibrato::VibratoParam_t::kNumVibratoParams;
     m_fChangedParamValue = 0.0;
+    m_treeState.createAndAddParameter(MOD_WIDTH_ID,MOD_WIDTH_NAME, MOD_WIDTH_NAME, NormalisableRange<float>(0.0f, 20.0f), 0.0f, nullptr, nullptr);
+    m_treeState.createAndAddParameter(MOD_FREQ_ID, MOD_FREQ_NAME, MOD_FREQ_NAME, NormalisableRange<float>(0.0f, 20.0f), 0.0f, nullptr, nullptr);
 }
 
 VibratoPluginAudioProcessor::~VibratoPluginAudioProcessor()
@@ -106,7 +108,8 @@ void VibratoPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesP
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
-    m_pCVibrato->initInstance(1, sampleRate, this->getTotalNumInputChannels());
+    m_pCVibrato->initInstance(1, sampleRate,
+                              (this->getTotalNumOutputChannels() > this->getTotalNumInputChannels()) ? this->getTotalNumInputChannels() : this->getTotalNumOutputChannels());
 }
 
 void VibratoPluginAudioProcessor::releaseResources()
@@ -141,34 +144,18 @@ bool VibratoPluginAudioProcessor::isBusesLayoutSupported (const BusesLayout& lay
 
 void VibratoPluginAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
-    ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
-
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
+    
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
 
 //    jassert(totalNumInputChannels==2 && totalNumOutputChannels==2);
     if (m_pCVibrato->isInitialized())
     {
-        if (! this->m_bBypass)
-        {
-            this->setParam(m_VChangedParam, m_fChangedParamValue);
-            m_pCVibrato->process((float **)buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), buffer.getNumSamples());
-        }
+        this->setParam(m_VChangedParam, m_fChangedParamValue);
+        m_pCVibrato->process((float **)buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), buffer.getNumSamples());
     }
 }
 
@@ -204,10 +191,15 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter()
     return new VibratoPluginAudioProcessor();
 }
 
-void VibratoPluginAudioProcessor::setBypass(bool bValue)
+void VibratoPluginAudioProcessor::setBypass(bool bValue, float fWidValue)
 {
     jassert(bValue==true || bValue==false);
     m_bBypass = bValue;
+    if (m_bBypass == false) {
+        m_pCVibrato->setParam(CVibrato::kParamModWidthInS, fWidValue / 1000);
+    } else {
+        m_pCVibrato->setParam(CVibrato::kParamModWidthInS, 0);
+    }
 }
 
 void VibratoPluginAudioProcessor::setParam(CVibrato::VibratoParam_t eParam, float fParamValue)

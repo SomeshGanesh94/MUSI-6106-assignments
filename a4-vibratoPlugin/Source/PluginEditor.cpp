@@ -19,6 +19,9 @@ VibratoPluginAudioProcessorEditor::VibratoPluginAudioProcessorEditor (VibratoPlu
     // editor's size to whatever you need it to be.
     setSize (400, 300);
     
+    m_SliderAttachmentModWid = new AudioProcessorValueTreeState::SliderAttachment (processor.m_treeState, MOD_WIDTH_ID, m_slModWidth);
+    m_SliderAttachmentModFreq = new AudioProcessorValueTreeState::SliderAttachment (processor.m_treeState, MOD_FREQ_ID, m_slModFrequency);
+    
     m_lPluginName.setText("Vibrato plugin: assignment 4", dontSendNotification);
     m_lPluginName.setFont(18);
     addAndMakeVisible(m_lPluginName);
@@ -102,6 +105,6 @@ void VibratoPluginAudioProcessorEditor::buttonClicked(Button* button)
 {
     if (button == &m_tbBypass)
     {
-        processor.setBypass(button->getToggleState());
+        processor.setBypass(button->getToggleState(), m_slModWidth.getValue());
     }
 }

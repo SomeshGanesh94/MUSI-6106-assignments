@@ -44,6 +44,9 @@ private:
     Label m_lSlModWidth;
     Label m_lSlModFrequency;
     Label m_lTbBypass;
+    
+    ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> m_SliderAttachmentModWid;
+    ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> m_SliderAttachmentModFreq;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VibratoPluginAudioProcessorEditor)
 };
