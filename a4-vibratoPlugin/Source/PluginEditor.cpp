@@ -90,12 +90,10 @@ void VibratoPluginAudioProcessorEditor::sliderValueChanged(Slider* slider)
 {
     if (slider == &m_slModWidth)
     {
-//        processor.setParam(CVibrato::VibratoParam_t::kParamModWidthInS, slider->getValue());
         processor.setChangedParam(CVibrato::VibratoParam_t::kParamModWidthInS, slider->getValue());
     }
     else if (slider == &m_slModFrequency)
     {
-//        processor.setParam(CVibrato::VibratoParam_t::kParamModFreqInHz, slider->getValue());
         processor.setChangedParam(CVibrato::VibratoParam_t::kParamModFreqInHz, slider->getValue());
     }
 }

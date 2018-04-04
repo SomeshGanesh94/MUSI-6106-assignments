@@ -58,7 +58,6 @@ public:
     
     //==============================================================================
     void setBypass(bool bValue);
-    bool isBypass();
     
     void setParam (CVibrato::VibratoParam_t eParam, float fParamValue);
     void setChangedParam (CVibrato::VibratoParam_t eParam, float fParamValue);

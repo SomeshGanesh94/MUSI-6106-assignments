@@ -164,7 +164,7 @@ void VibratoPluginAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 //    jassert(totalNumInputChannels==2 && totalNumOutputChannels==2);
     if (m_pCVibrato->isInitialized())
     {
-        if (! this->isBypass())
+        if (! this->m_bBypass)
         {
             this->setParam(m_VChangedParam, m_fChangedParamValue);
             m_pCVibrato->process((float **)buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), buffer.getNumSamples());
@@ -208,11 +208,6 @@ void VibratoPluginAudioProcessor::setBypass(bool bValue)
 {
     jassert(bValue==true || bValue==false);
     m_bBypass = bValue;
-}
-
-bool VibratoPluginAudioProcessor::isBypass()
-{
-    return m_bBypass;
 }
 
 void VibratoPluginAudioProcessor::setParam(CVibrato::VibratoParam_t eParam, float fParamValue)
