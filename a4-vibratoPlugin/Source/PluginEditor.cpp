@@ -19,17 +19,28 @@ VibratoPluginAudioProcessorEditor::VibratoPluginAudioProcessorEditor (VibratoPlu
     // editor's size to whatever you need it to be.
     setSize (400, 300);
     
+    m_lSlModWidth.setText("Modulation width", dontSendNotification);
+    m_lSlModWidth.setFont(12);
+    addAndMakeVisible(m_lSlModWidth);
+    
+    m_lSlModFrequency.setText("Modulation frequency", dontSendNotification);
+    m_lSlModFrequency.setFont(12);
+    addAndMakeVisible(m_lSlModFrequency);
+    
+    m_lTbBypass.setText("Bypass plugin", dontSendNotification);
+    m_lTbBypass.setFont(12);
+    addAndMakeVisible(m_lTbBypass);
+    
     m_slModWidth.setRange(0.0 , 20.0);
-    m_slModWidth.setTextValueSuffix("Modulation width in sec");
+    m_slModWidth.setTextValueSuffix("sec");
     m_slModWidth.addListener(this);
     addAndMakeVisible(m_slModWidth);
     
     m_slModFrequency.setRange(0.0 , 20.0);
-    m_slModFrequency.setTextValueSuffix("Modulation frequency in Hz");
+    m_slModFrequency.setTextValueSuffix("Hz");
     m_slModFrequency.addListener(this);
     addAndMakeVisible(m_slModFrequency);
     
-    m_tbBypass.setButtonText("Bypass switch");
     m_tbBypass.setToggleState(0, dontSendNotification);
     m_tbBypass.addListener(this);
     addAndMakeVisible(m_tbBypass);
@@ -47,8 +58,6 @@ void VibratoPluginAudioProcessorEditor::paint (Graphics& g)
 
     g.setColour (Colours::white);
     g.setFont (15.0f);
-    g.drawFittedText ("Hello World!", getLocalBounds(), Justification::centred, 1);
-    
 }
 
 void VibratoPluginAudioProcessorEditor::resized()
@@ -57,9 +66,14 @@ void VibratoPluginAudioProcessorEditor::resized()
     // subcomponents in your editor..
 
     auto sliderLeft = 50;
-    m_slModWidth.setBounds(sliderLeft, 20, getWidth() - sliderLeft - 10, 20);
-    m_slModFrequency.setBounds(sliderLeft, 50, getWidth() - sliderLeft - 10, 20);
-    m_tbBypass.setBounds(sliderLeft, 80, 50, 20);
+    m_lSlModWidth.setBounds(sliderLeft-5, -110, getWidth(), getHeight());
+    m_lSlModFrequency.setBounds(sliderLeft-5, -40, getWidth(), getHeight());
+    m_lTbBypass.setBounds(sliderLeft-5, 30, getWidth(), getHeight());
+    
+    m_slModWidth.setBounds(sliderLeft, 60, getWidth() - sliderLeft - 10, 20);
+    m_slModFrequency.setBounds(sliderLeft, 130, getWidth() - sliderLeft - 10, 20);
+    m_tbBypass.setBounds(sliderLeft, 200, 50, 20);
+    
 
 }
 

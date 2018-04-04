@@ -38,6 +38,10 @@ private:
     Slider m_slModFrequency;
     
     ToggleButton m_tbBypass;
+    
+    Label m_lSlModWidth;
+    Label m_lSlModFrequency;
+    Label m_lTbBypass;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VibratoPluginAudioProcessorEditor)
 };
