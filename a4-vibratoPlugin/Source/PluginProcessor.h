@@ -62,8 +62,7 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
     //==============================================================================
-    void setBypass(bool bValue, float fWidValue);
-    
+
     void setParam (CVibrato::VibratoParam_t eParam, float fParamValue);
     void setChangedParam (CVibrato::VibratoParam_t eParam, float fParamValue);
     AudioProcessorValueTreeState m_treeState;
@@ -74,8 +73,6 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VibratoPluginAudioProcessor)
     
     CVibrato *m_pCVibrato;
-    bool m_bBypass;
-    
     CVibrato::VibratoParam_t m_VChangedParam;
     
     float m_fChangedParamValue;

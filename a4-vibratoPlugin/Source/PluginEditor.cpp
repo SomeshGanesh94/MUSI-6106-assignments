@@ -91,13 +91,15 @@ void VibratoPluginAudioProcessorEditor::resized()
 
 void VibratoPluginAudioProcessorEditor::sliderValueChanged(Slider* slider)
 {
+    if (m_tbBypass.getToggleState() == true)
+        return;
     if (slider == &m_slModWidth)
     {
-        processor.setChangedParam(CVibrato::VibratoParam_t::kParamModWidthInS, slider->getValue());
+        processor.setParam(CVibrato::kParamModWidthInS, slider->getValue());
     }
     else if (slider == &m_slModFrequency)
     {
-        processor.setChangedParam(CVibrato::VibratoParam_t::kParamModFreqInHz, slider->getValue());
+        processor.setParam(CVibrato::kParamModFreqInHz, slider->getValue());
     }
 }
 
@@ -105,6 +107,11 @@ void VibratoPluginAudioProcessorEditor::buttonClicked(Button* button)
 {
     if (button == &m_tbBypass)
     {
-        processor.setBypass(button->getToggleState(), m_slModWidth.getValue());
+        if (button->getToggleState() == true) {
+            processor.setParam(CVibrato::kParamModWidthInS, 0);
+        } else {
+            processor.setParam(CVibrato::kParamModWidthInS, m_slModWidth.getValue());
+            processor.setParam(CVibrato::kParamModFreqInHz, m_slModFrequency.getValue());
+        }
     }
 }

@@ -25,18 +25,17 @@ VibratoPluginAudioProcessor::VibratoPluginAudioProcessor()
 #endif
 {
     CVibrato::createInstance(m_pCVibrato);
-    m_bBypass = false;
     m_VChangedParam = CVibrato::VibratoParam_t::kNumVibratoParams;
     m_fChangedParamValue = 0.0;
     m_treeState.createAndAddParameter(MOD_WIDTH_ID,MOD_WIDTH_NAME, MOD_WIDTH_NAME, NormalisableRange<float>(0.0f, 20.0f), 0.0f, nullptr, nullptr);
     m_treeState.createAndAddParameter(MOD_FREQ_ID, MOD_FREQ_NAME, MOD_FREQ_NAME, NormalisableRange<float>(0.0f, 20.0f), 0.0f, nullptr, nullptr);
+    m_treeState.state = ValueTree ("savedParams");
 }
 
 VibratoPluginAudioProcessor::~VibratoPluginAudioProcessor()
 {
     CVibrato::destroyInstance(m_pCVibrato);
     m_pCVibrato = NULL;
-    m_bBypass = false;
     m_VChangedParam = CVibrato::VibratoParam_t::kNumVibratoParams;
     m_fChangedParamValue = 0.0;
 }
@@ -151,10 +150,8 @@ void VibratoPluginAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
         buffer.clear (i, 0, buffer.getNumSamples());
 
 
-//    jassert(totalNumInputChannels==2 && totalNumOutputChannels==2);
     if (m_pCVibrato->isInitialized())
     {
-        this->setParam(m_VChangedParam, m_fChangedParamValue);
         m_pCVibrato->process((float **)buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), buffer.getNumSamples());
     }
 }
@@ -176,12 +173,20 @@ void VibratoPluginAudioProcessor::getStateInformation (MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+    ScopedPointer<XmlElement> xml(m_treeState.state.createXml());
+    copyXmlToBinary(*xml, destData);
 }
 
 void VibratoPluginAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+    ScopedPointer<XmlElement> theParams (getXmlFromBinary(data, sizeInBytes));
+    if (theParams != nullptr) {
+        if (theParams->hasTagName(m_treeState.state.getType())) {
+            m_treeState.state = ValueTree::fromXml(*theParams);
+        }
+    }
 }
 
 //==============================================================================
@@ -191,16 +196,6 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter()
     return new VibratoPluginAudioProcessor();
 }
 
-void VibratoPluginAudioProcessor::setBypass(bool bValue, float fWidValue)
-{
-    jassert(bValue==true || bValue==false);
-    m_bBypass = bValue;
-    if (m_bBypass == false) {
-        m_pCVibrato->setParam(CVibrato::kParamModWidthInS, fWidValue / 1000);
-    } else {
-        m_pCVibrato->setParam(CVibrato::kParamModWidthInS, 0);
-    }
-}
 
 void VibratoPluginAudioProcessor::setParam(CVibrato::VibratoParam_t eParam, float fParamValue)
 {
