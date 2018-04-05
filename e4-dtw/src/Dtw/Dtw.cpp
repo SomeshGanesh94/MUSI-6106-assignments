@@ -25,15 +25,28 @@ Error_t CDtw::init( int iNumRows, int iNumCols )
     {
         m_ppfCostMatrix[row] = new m_sNode [iNumCols];
     }
-    m_ppfCostMatrix[0][0].length = 0;
+    
     m_iNumCols = iNumCols;
     m_iNumRows = iNumRows;
+    
+    m_PathLength = 0;
+    m_PathCost = 0.0;
     
     return kNoError;
 }
 
 Error_t CDtw::reset()
 {
+    for (int row = 0; row < m_iNumRows; row++)
+    {
+        delete m_ppfCostMatrix[row];
+    }
+    delete [] m_ppfCostMatrix;
+    m_ppfCostMatrix = NULL;
+    
+    m_PathLength = 0;
+    m_PathCost = 0.0;
+    
     return kNoError;
 }
 
@@ -47,12 +60,11 @@ Error_t CDtw::process(float **ppfDistanceMatrix)
     {
         return kNotInitializedError;
     }
+    
     m_ppfCostMatrix[0][0].value = ppfDistanceMatrix[0][0];
-    m_ppfCostMatrix[0][0].direction = kNumDirections;
     m_ppfCostMatrix[0][0].length = 1;
     
-    
-    if (!(m_iNumRows==1))
+    if (m_iNumRows!=1)
     {
         for (int row = 1; row < m_iNumRows; row++)
         {
@@ -62,7 +74,7 @@ Error_t CDtw::process(float **ppfDistanceMatrix)
         }
     }
     
-    if (!(m_iNumCols==1))
+    if (m_iNumCols!=1)
     {
         for (int col = 1; col < m_iNumCols; col++)
         {
@@ -122,17 +134,20 @@ Error_t CDtw::process(float **ppfDistanceMatrix)
         }
     }
     
+    m_PathLength = m_ppfCostMatrix[m_iNumRows-1][m_iNumCols-1].length;
+    m_PathCost = m_ppfCostMatrix[m_iNumRows-1][m_iNumCols-1].value;
+    
     return kNoError;
 }
 
 int CDtw::getPathLength()
 {
-    return m_ppfCostMatrix[m_iNumRows-1][m_iNumCols-1].length;
+    return m_PathLength;
 }
 
 float CDtw::getPathCost() const
 {
-    return m_ppfCostMatrix[m_iNumRows-1][m_iNumCols-1].value;
+    return m_PathCost;
 }
 
 Error_t CDtw::getPath( int **ppiPathResult ) const
@@ -140,7 +155,7 @@ Error_t CDtw::getPath( int **ppiPathResult ) const
     int row = m_iNumRows-1;
     int col = m_iNumCols-1;
     
-    for (int ele = m_ppfCostMatrix[m_iNumRows-1][m_iNumCols-1].length-1; ele >= 0 ; ele--)
+    for (int ele = m_PathLength-1; ele >= 0 ; ele--)
     {
         ppiPathResult[0][ele] = row;
         ppiPathResult[1][ele] = col;

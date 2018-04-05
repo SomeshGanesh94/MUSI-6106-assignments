@@ -77,7 +77,6 @@ private:
     int m_iNumRows;
     int m_iNumCols;
     
-    int **m_iPath;
     int m_PathLength;
     float m_PathCost;
 };
