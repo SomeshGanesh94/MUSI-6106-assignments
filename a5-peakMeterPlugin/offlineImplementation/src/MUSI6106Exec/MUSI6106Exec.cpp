@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <ctime>
+#include <assert.h>
 
 #include "MUSI6106Config.h"
 
@@ -11,15 +12,25 @@ using std::endl;
 
 // local function declarations
 void    showClInfo ();
+void numArgTest (int);
 
 /////////////////////////////////////////////////////////////////////////////////
 // main function
 int main(int argc, char* argv[])
 {
-    std::string             sInputFilePath,                 //!< file paths
-        sOutputFilePath;
+    // check command line arguments
+    try {
+        numArgTest(argc);
+    } catch (const char* msg) {
+        cout << msg << endl;
+    }
+    assert (argc == 5);
+    
+    std::string             sInputFilePath = argv[1];                 //!< file paths
+    std::string             sOutputFilePath = argv[2];
 
-    static const int        kBlockSize = 1024;
+    static const int        kBlockSize = atoi(argv[3]);
+    const int               kHopSize = atoi(argv[4]);
 
     clock_t                 time = 0;
 
@@ -30,19 +41,6 @@ int main(int argc, char* argv[])
     CAudioFileIf::FileSpec_t stFileSpec;
 
     showClInfo();
-
-    //////////////////////////////////////////////////////////////////////////////
-    // parse command line arguments
-    if (argc < 2)
-    {
-        cout << "Missing audio input path!";
-        return -1;
-    }
-    else
-    {
-        sInputFilePath = argv[1];
-        sOutputFilePath = sInputFilePath + ".txt";
-    }
 
     //////////////////////////////////////////////////////////////////////////////
     // open the input wave file
@@ -112,5 +110,11 @@ void     showClInfo()
     cout  << endl;
 
     return;
+}
+
+void numArgTest(int argc)
+{
+    if (argc != 5)
+        throw "Exception: your input arguments are incorrect.\n";
 }
 
