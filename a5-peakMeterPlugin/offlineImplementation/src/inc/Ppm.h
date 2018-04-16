@@ -10,13 +10,15 @@ public:
     enum AlphaType_t
     {
         kAlphaAttack,
-        kAlphaRelease
+        kAlphaRelease,
+        
+        kNumAlphaTypes
     };
     
     static Error_t createInstance (CPpm*& pCPpm);
     static Error_t destroyInstance (CPpm*& pCPpm);
     
-    Error_t init();
+    Error_t init(float fAlpha[], float fSampleRateInHz, int iNumChannels);
     Error_t reset();
     
     Error_t process (float **ppfInputBuffer, int iNumberOfFrames);
@@ -29,8 +31,9 @@ private:
     
     bool m_bIsInitialized;
     
-    float m_fAlpha[2];
+    float m_fAlpha[kNumAlphaTypes];
     float m_fSampleRateInHz;
+    int m_iNumChannels;
 };
 
 #endif // #if !defined(__Ppm_hdr__)
