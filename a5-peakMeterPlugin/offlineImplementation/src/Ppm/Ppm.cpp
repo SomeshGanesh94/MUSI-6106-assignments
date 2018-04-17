@@ -24,10 +24,13 @@ Error_t CPpm::destroyInstance(CPpm *&pCPpm)
     return kNoError;
 }
 
-Error_t CPpm::init(float fAlpha[], float fSampleRateInHz, int iNumChannels)
+Error_t CPpm::init(float fAlpha[], int iBlockSize, float fSampleRateInHz, int iNumChannels)
 {
+    m_iBlockSize = iBlockSize;
     m_fSampleRateInHz = fSampleRateInHz;
     m_iNumChannels = iNumChannels;
+    
+    m_pfVppm = new float[m_iBlockSize];
     
     m_fAlpha[kAlphaAttack] = fAlpha[kAlphaAttack];
     m_fAlpha[kAlphaRelease] = fAlpha[kAlphaRelease];
@@ -39,6 +42,9 @@ Error_t CPpm::init(float fAlpha[], float fSampleRateInHz, int iNumChannels)
 
 Error_t CPpm::reset()
 {
+    delete [] m_pfVppm;
+    
+    m_iBlockSize = 0;
     m_fSampleRateInHz = 0;
     m_iNumChannels = 0;
     m_fAlpha[kAlphaAttack] = 0;
