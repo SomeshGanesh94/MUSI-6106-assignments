@@ -1,5 +1,6 @@
 #include "ErrorDef.h"
 #include "Ppm.h"
+#include <math.h>
 
 Error_t CPpm::createInstance(CPpm *&pCPpm)
 {
@@ -24,16 +25,20 @@ Error_t CPpm::destroyInstance(CPpm *&pCPpm)
     return kNoError;
 }
 
-Error_t CPpm::init(float fAlpha[], int iBlockSize, float fSampleRateInHz, int iNumChannels)
+Error_t CPpm::init(float fAlpha[], int iBlockSize, int iHopSize, float fSampleRateInHz, int iNumChannels)
 {
     m_iBlockSize = iBlockSize;
+    m_iHopSize = iHopSize;
+    m_fFilterBuf = 0;
     m_fSampleRateInHz = fSampleRateInHz;
     m_iNumChannels = iNumChannels;
     
-    m_pfVppm = new float[m_iBlockSize];
+    m_pfVtemp = new float[m_iBlockSize];
     
-    m_fAlpha[kAlphaAttack] = fAlpha[kAlphaAttack];
-    m_fAlpha[kAlphaRelease] = fAlpha[kAlphaRelease];
+    m_fAlpha[kAlphaAttack] = 1 - exp(-2.2 / (m_fSampleRateInHz * 0.01));
+    m_fAlpha[kAlphaRelease] = 1 - exp(-2.2 / (m_fSampleRateInHz * 1.5));
+//    m_fAlpha[kAlphaAttack] = fAlpha[kAlphaAttack];
+//    m_fAlpha[kAlphaRelease] = fAlpha[kAlphaRelease];
     
     m_bIsInitialized = true;
     
@@ -42,9 +47,11 @@ Error_t CPpm::init(float fAlpha[], int iBlockSize, float fSampleRateInHz, int iN
 
 Error_t CPpm::reset()
 {
-    delete [] m_pfVppm;
+    delete [] m_pfVtemp;
     
     m_iBlockSize = 0;
+    m_iHopSize = 0;
+    m_fFilterBuf = 0;
     m_fSampleRateInHz = 0;
     m_iNumChannels = 0;
     m_fAlpha[kAlphaAttack] = 0;
@@ -55,8 +62,30 @@ Error_t CPpm::reset()
     return kNoError;
 }
 
-Error_t CPpm::process(float **ppfInputBuffer, int iNumberOfFrames)
+Error_t CPpm::process(float **ppfInputBuffer, float *pfOutputBuffer, int iNumberOfFrames)
 {
+    int iChannel = 0;
+    m_fFilterBuf = m_pfVtemp[m_iHopSize-1];
+    float fMaxValue = 0;
+    for (int iSample = 0; iSample < iNumberOfFrames; iSample++)
+    {
+        if (m_fFilterBuf > abs(ppfInputBuffer[iChannel][iSample]))
+        {
+            m_pfVtemp[iSample] = (1 - m_fAlpha[kAlphaRelease]) * m_fFilterBuf;
+        }
+        else
+        {
+            m_pfVtemp[iSample] = m_fAlpha[kAlphaAttack] * abs(ppfInputBuffer[iChannel][iSample]) + (1 - m_fAlpha[kAlphaAttack]) * m_fFilterBuf;
+        }
+        m_fFilterBuf = m_pfVtemp[iSample];
+        
+        if fMaxValue < m_pfVtemp[iSample]
+        {
+            fMaxValue = m_pfVtemp[iSample];
+        }
+    }
+    
+    pfOutputBuffer[iChannel] = fMaxValue;
     return kNoError;
 }
 

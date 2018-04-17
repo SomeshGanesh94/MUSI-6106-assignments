@@ -18,10 +18,10 @@ public:
     static Error_t createInstance (CPpm*& pCPpm);
     static Error_t destroyInstance (CPpm*& pCPpm);
     
-    Error_t init(float fAlpha[], int iBlockSize, float fSampleRateInHz, int iNumChannels);
+    Error_t init(float fAlpha[], int iBlockSize, int iHopSize, float fSampleRateInHz, int iNumChannels);
     Error_t reset();
     
-    Error_t process (float **ppfInputBuffer, int iNumberOfFrames);
+    Error_t process (float **ppfInputBuffer, float *pfOutputBuffer, int iNumberOfFrames);
     
 protected:
     CPpm ();
@@ -33,10 +33,12 @@ private:
     
     float m_fAlpha[kNumAlphaTypes];
     int m_iBlockSize;
+    int m_iHopSize;
     float m_fSampleRateInHz;
     int m_iNumChannels;
+    float m_fFilterBuf;
     
-    float *m_pfVppm;
+    float *m_pfVtemp;
 };
 
 #endif // #if !defined(__Ppm_hdr__)
