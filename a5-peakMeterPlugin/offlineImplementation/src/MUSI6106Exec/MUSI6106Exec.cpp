@@ -17,7 +17,7 @@ void numArgTest (int);
 
 /////////////////////////////////////////////////////////////////////////////////
 // main function
-int main(int argc, char* argv[])
+int main(int argc, char* argv[]) 
 {
     // check command line arguments
     try {
@@ -29,23 +29,23 @@ int main(int argc, char* argv[])
     
     std::string             sInputFilePath = argv[1];                 //!< file paths
     std::string             sOutputFilePath = argv[2];
-
+    
     static const int        kBlockSize = atoi(argv[3]);
     const int               kHopSize = atoi(argv[4]);
-
+    
     clock_t                 time = 0;
-
+    
     float                   **ppfAudioData = 0;
     float                   *pfOutput = 0;
-
+    
     CAudioFileIf            *phAudioFile = 0;
     std::fstream            hOutputFile;
     CAudioFileIf::FileSpec_t stFileSpec;
     
     CPpm                    *pCPpm = 0;
-
+    
     showClInfo();
-
+    
     //////////////////////////////////////////////////////////////////////////////
     // open the input wave file
     CAudioFileIf::create(phAudioFile);
@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
         return -1;
     }
     phAudioFile->getFileSpec(stFileSpec);
-
+    
     //////////////////////////////////////////////////////////////////////////////
     // open the output text file
     hOutputFile.open(sOutputFilePath.c_str(), std::ios::out);
@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
         cout << "Text file open error!";
         return -1;
     }
-
+    
     //////////////////////////////////////////////////////////////////////////////
     // allocate memory
     CPpm::createInstance(pCPpm);
@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
         ppfAudioData[i] = new float[kBlockSize];
     
     pfOutput = new float[stFileSpec.iNumChannels];
-
+    
     time = clock();
     //////////////////////////////////////////////////////////////////////////////
     // get audio data and write it to the output file
@@ -84,26 +84,22 @@ int main(int argc, char* argv[])
     {
         long long iNumFrames = kBlockSize;
         phAudioFile->readData(ppfAudioData, iNumFrames);
-
-//        for (int i = 0; i < iNumFrames; i++)
-//        {
-//            for (int c = 0; c < stFileSpec.iNumChannels; c++)
-//            {
-//                hOutputFile << ppfAudioData[c][i] << "\t";
-//            }
-//            hOutputFile << endl;
-//        }
         pCPpm->process(ppfAudioData, pfOutput, iNumFrames);
-        hOutputFile << pfOutput[0] << endl;
+        
+            for (int c = 0; c < stFileSpec.iNumChannels; c++)
+            {
+                hOutputFile << pfOutput[c] << "\t";
+            }
+            hOutputFile << endl;
     }
-
+    
     cout << "reading/writing done in: \t" << (clock() - time)*1.F / CLOCKS_PER_SEC << " seconds." << endl;
-
+    
     //////////////////////////////////////////////////////////////////////////////
     // clean-up
     CAudioFileIf::destroy(phAudioFile);
     hOutputFile.close();
-
+    
     pCPpm->reset();
     CPpm::destroyInstance(pCPpm);
     pCPpm = 0;
@@ -112,9 +108,9 @@ int main(int argc, char* argv[])
         delete[] ppfAudioData[i];
     delete[] ppfAudioData;
     ppfAudioData = 0;
-
+    
     return 0;
-
+    
 }
 
 
@@ -123,7 +119,7 @@ void     showClInfo()
     cout << "GTCMT MUSI6106 Executable" << endl;
     cout << "(c) 2014-2018 by Alexander Lerch" << endl;
     cout  << endl;
-
+    
     return;
 }
 
@@ -132,4 +128,5 @@ void numArgTest(int argc)
     if (argc != 5)
         throw "Exception: your input arguments are incorrect.\n";
 }
+
 

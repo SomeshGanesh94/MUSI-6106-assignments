@@ -26,7 +26,7 @@ public:
 protected:
     CPpm ();
     virtual ~CPpm ();
-
+    
 private:
     
     bool m_bIsInitialized;
@@ -42,3 +42,4 @@ private:
 };
 
 #endif // #if !defined(__Ppm_hdr__)
+
