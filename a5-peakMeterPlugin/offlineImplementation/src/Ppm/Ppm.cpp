@@ -25,7 +25,7 @@ Error_t CPpm::destroyInstance(CPpm *&pCPpm)
     return kNoError;
 }
 
-Error_t CPpm::init(float fAlpha[], int iBlockSize, int iHopSize, float fSampleRateInHz, int iNumChannels)
+Error_t CPpm::init(int iBlockSize, int iHopSize, float fSampleRateInHz, int iNumChannels)
 {
     m_iBlockSize = iBlockSize;
     m_iHopSize = iHopSize;
