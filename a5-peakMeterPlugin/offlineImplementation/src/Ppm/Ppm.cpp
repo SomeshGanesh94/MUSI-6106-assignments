@@ -8,8 +8,6 @@ Error_t CPpm::createInstance(CPpm *&pCPpm)
 
     if (!pCPpm)
         return kUnknownError;
-
-    m_bIsInitialized = false;
     
     return kNoError;
 }
@@ -79,7 +77,7 @@ Error_t CPpm::process(float **ppfInputBuffer, float *pfOutputBuffer, int iNumber
         }
         m_fFilterBuf = m_pfVtemp[iSample];
         
-        if fMaxValue < m_pfVtemp[iSample]
+        if (fMaxValue < m_pfVtemp[iSample])
         {
             fMaxValue = m_pfVtemp[iSample];
         }
@@ -91,7 +89,7 @@ Error_t CPpm::process(float **ppfInputBuffer, float *pfOutputBuffer, int iNumber
 
 CPpm::CPpm()
 {
-    
+    m_bIsInitialized = false;
 }
 
 CPpm::~CPpm()
