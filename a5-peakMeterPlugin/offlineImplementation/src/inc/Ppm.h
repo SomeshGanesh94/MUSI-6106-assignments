@@ -18,7 +18,7 @@ public:
     static Error_t createInstance (CPpm*& pCPpm);
     static Error_t destroyInstance (CPpm*& pCPpm);
     
-    Error_t init(float fAlpha[], int iBlockSize, int iHopSize, float fSampleRateInHz, int iNumChannels);
+    Error_t init(int iBlockSize, int iHopSize, float fSampleRateInHz, int iNumChannels);
     Error_t reset();
     
     Error_t process (float **ppfInputBuffer, float *pfOutputBuffer, int iNumberOfFrames);

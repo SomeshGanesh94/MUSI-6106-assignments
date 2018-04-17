@@ -6,6 +6,7 @@
 #include "MUSI6106Config.h"
 
 #include "AudioFileIf.h"
+#include "Ppm.h"
 
 using std::cout;
 using std::endl;
@@ -35,10 +36,13 @@ int main(int argc, char* argv[])
     clock_t                 time = 0;
 
     float                   **ppfAudioData = 0;
+    float                   *pfOutput = 0;
 
     CAudioFileIf            *phAudioFile = 0;
     std::fstream            hOutputFile;
     CAudioFileIf::FileSpec_t stFileSpec;
+    
+    CPpm                    *pCPpm = 0;
 
     showClInfo();
 
@@ -64,9 +68,14 @@ int main(int argc, char* argv[])
 
     //////////////////////////////////////////////////////////////////////////////
     // allocate memory
+    CPpm::createInstance(pCPpm);
+    pCPpm->init(kBlockSize, kHopSize, stFileSpec.fSampleRateInHz, stFileSpec.iNumChannels);
+    
     ppfAudioData = new float*[stFileSpec.iNumChannels];
     for (int i = 0; i < stFileSpec.iNumChannels; i++)
         ppfAudioData[i] = new float[kBlockSize];
+    
+    pfOutput = new float[stFileSpec.iNumChannels];
 
     time = clock();
     //////////////////////////////////////////////////////////////////////////////
@@ -76,14 +85,16 @@ int main(int argc, char* argv[])
         long long iNumFrames = kBlockSize;
         phAudioFile->readData(ppfAudioData, iNumFrames);
 
-        for (int i = 0; i < iNumFrames; i++)
-        {
-            for (int c = 0; c < stFileSpec.iNumChannels; c++)
-            {
-                hOutputFile << ppfAudioData[c][i] << "\t";
-            }
-            hOutputFile << endl;
-        }
+//        for (int i = 0; i < iNumFrames; i++)
+//        {
+//            for (int c = 0; c < stFileSpec.iNumChannels; c++)
+//            {
+//                hOutputFile << ppfAudioData[c][i] << "\t";
+//            }
+//            hOutputFile << endl;
+//        }
+        pCPpm->process(ppfAudioData, pfOutput, iNumFrames);
+        hOutputFile << pfOutput[0] << endl;
     }
 
     cout << "reading/writing done in: \t" << (clock() - time)*1.F / CLOCKS_PER_SEC << " seconds." << endl;
@@ -93,6 +104,10 @@ int main(int argc, char* argv[])
     CAudioFileIf::destroy(phAudioFile);
     hOutputFile.close();
 
+    pCPpm->reset();
+    CPpm::destroyInstance(pCPpm);
+    pCPpm = 0;
+    
     for (int i = 0; i < stFileSpec.iNumChannels; i++)
         delete[] ppfAudioData[i];
     delete[] ppfAudioData;
