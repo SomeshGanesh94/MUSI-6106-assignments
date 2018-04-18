@@ -29,6 +29,11 @@ Error_t CPpm::destroyInstance(CPpm *&pCPpm)
 
 Error_t CPpm::init(int iBlockSize, int iHopSize, float fSampleRateInHz, int iNumChannels)
 {
+    if (iBlockSize <= 0 || iHopSize <= 0 || fSampleRateInHz <= 0.F || iNumChannels <= 0 )
+        return kFunctionInvalidArgsError;
+    else if (iBlockSize < iHopSize)
+        return kFunctionInvalidArgsError;
+    
     m_iBlockSize = iBlockSize;
     m_iHopSize = iHopSize;
     m_fFilterBuf = 0;
@@ -50,11 +55,15 @@ Error_t CPpm::init(int iBlockSize, int iHopSize, float fSampleRateInHz, int iNum
 
 Error_t CPpm::reset()
 {
-    for (int iChannel = 0; iChannel < 50; iChannel++)
+    if (m_bIsInitialized)
     {
-        delete m_ppfVtemp[iChannel];
+        for (int iChannel = 0; iChannel < 50; iChannel++)
+        {
+            delete [] m_ppfVtemp[iChannel];
+        }
+        delete [] m_ppfVtemp;
+        m_ppfVtemp = 0;
     }
-    delete [] m_ppfVtemp;
     
     m_iBlockSize = 0;
     m_iHopSize = 0;
@@ -94,8 +103,10 @@ Error_t CPpm::process(float **ppfInputBuffer, float *pfOutputBuffer, int iNumber
                     fMaxValue = m_ppfVtemp[iChannel][iSample];
                 }
             }
+//            cout << fMaxValue << " ";
             pfOutputBuffer[iChannel] = fMaxValue;
         }
+//        cout << endl;
         return kNoError;
     }
     else
@@ -129,7 +140,6 @@ CPpm::CPpm()
 
 CPpm::~CPpm()
 {
-    
 }
 
 

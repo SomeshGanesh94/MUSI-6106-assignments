@@ -1,5 +1,5 @@
-[inputAudio, fs] = audioread('/Users/someshganesh/Documents/GitHub/MUSI-6106-assignments/audio/sweep.wav');
-[vppm, t] = FeatureTimePeakEnvelope(inputAudio, 1024, 512, fs);
+[inputAudio, fs] = audioread('testAudio.wav');
+[vppm, t] = FeatureTimePeakEnvelope(inputAudio, 1024, 1024, fs);
 
 
 function [vppm, t] = FeatureTimePeakEnvelope(x, iBlockLength, iHopLength, f_s)
