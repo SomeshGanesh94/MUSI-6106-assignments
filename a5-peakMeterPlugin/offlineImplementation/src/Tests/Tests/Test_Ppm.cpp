@@ -126,7 +126,7 @@ SUITE(Ppm)
         int                         iCurrentBlockNum = 1;
 
         CAudioFileIf::create(phAudioFile);
-        phAudioFile->openFile("../../inc/speechSound.wav", CAudioFileIf::kFileRead);
+        phAudioFile->openFile("../../inc/testAudio.wav", CAudioFileIf::kFileRead);
         phAudioFile->getFileSpec(stFileSpec);
 
         CHECK_EQUAL(2, stFileSpec.iNumChannels);
