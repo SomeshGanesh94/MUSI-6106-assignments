@@ -95,9 +95,7 @@ Error_t CPpm::process(float **ppfInputBuffer, float *pfOutputBuffer, int iNumber
                 }
             }
             pfOutputBuffer[iChannel] = fMaxValue;
-            std::cout << pfOutputBuffer[iChannel] << " ";
         }
-        std::cout << std::endl;
         return kNoError;
     }
     else
