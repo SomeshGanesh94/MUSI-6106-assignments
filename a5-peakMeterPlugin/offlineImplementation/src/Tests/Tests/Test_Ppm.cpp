@@ -45,9 +45,9 @@ SUITE(Ppm)
         const int         iNumChannels = 2;
         const float       fSampleFreq = 44100.F;
         
-        CPpm        *m_pCPpm;
-        float       **m_ppfData;
-        float       *m_pfOutputData;
+        CPpm        *m_pCPpm = NULL;
+        float       **m_ppfData = NULL;
+        float       *m_pfOutputData = NULL;
     };
     
     
@@ -56,9 +56,11 @@ SUITE(Ppm)
     TEST_FIXTURE(PpmData, Api)
     {
         CHECK_EQUAL(kFunctionInvalidArgsError, m_pCPpm->init(-1, 4, 1, 2));
+        m_pCPpm -> reset();
         CHECK_EQUAL(kFunctionInvalidArgsError, m_pCPpm->init(3, 0, 44100.2, 2));
+        m_pCPpm -> reset();
         CHECK_EQUAL(kNoError, m_pCPpm->init(1024, 256, fSampleFreq, iNumChannels));
-//        m_pCPpm -> reset();
+        m_pCPpm -> reset();
     }
 
     TEST_FIXTURE(PpmData, WithoutInitialization)

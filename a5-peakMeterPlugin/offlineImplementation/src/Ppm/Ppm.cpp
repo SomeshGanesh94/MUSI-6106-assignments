@@ -40,8 +40,8 @@ Error_t CPpm::init(int iBlockSize, int iHopSize, float fSampleRateInHz, int iNum
     m_fSampleRateInHz = fSampleRateInHz;
     m_iNumChannels = iNumChannels;
     
-    m_ppfVtemp = new float*[50];
-    for (int iChannel = 0; iChannel < 50; iChannel++)
+    m_ppfVtemp = new float*[iMaxChannels];
+    for (int iChannel = 0; iChannel < iMaxChannels; iChannel++)
     {
         m_ppfVtemp[iChannel] = new float[m_iBlockSize];
     }
@@ -57,7 +57,7 @@ Error_t CPpm::reset()
 {
     if (m_bIsInitialized)
     {
-        for (int iChannel = 0; iChannel < 50; iChannel++)
+        for (int iChannel = 0; iChannel < iMaxChannels; iChannel++)
         {
             delete [] m_ppfVtemp[iChannel];
         }

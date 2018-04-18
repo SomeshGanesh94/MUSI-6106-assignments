@@ -43,6 +43,8 @@ private:
     float m_fFilterBuf;
     
     float **m_ppfVtemp;
+    
+    const int iMaxChannels = 50;
 };
 
 #endif // #if !defined(__Ppm_hdr__)
