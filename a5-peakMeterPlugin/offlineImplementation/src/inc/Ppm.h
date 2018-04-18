@@ -40,7 +40,7 @@ private:
     int m_iNumChannels;
     float m_fFilterBuf;
     
-    float *m_pfVtemp;
+    float **m_ppfVtemp;
 };
 
 #endif // #if !defined(__Ppm_hdr__)
