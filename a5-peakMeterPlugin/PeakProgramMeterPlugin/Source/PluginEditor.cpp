@@ -20,6 +20,7 @@ PeakProgramMeterPluginAudioProcessorEditor::PeakProgramMeterPluginAudioProcessor
     setSize (400, 300);
     addAndMakeVisible(m_CMeterComponent);
     m_CMeterComponent.setSize(100, 100);
+    startTimer(10);
 }
 
 PeakProgramMeterPluginAudioProcessorEditor::~PeakProgramMeterPluginAudioProcessorEditor()
@@ -42,4 +43,20 @@ void PeakProgramMeterPluginAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     m_CMeterComponent.setBounds(0, 0, 100, 100);
+}
+
+void PeakProgramMeterPluginAudioProcessorEditor::timerCallback()
+{
+    this->setNumChannels();
+    this->setValue();
+}
+
+void PeakProgramMeterPluginAudioProcessorEditor::setNumChannels()
+{
+    m_CMeterComponent.setNumChannels(processor.getTotalNumInputChannels());
+}
+
+void PeakProgramMeterPluginAudioProcessorEditor::setValue()
+{
+    m_CMeterComponent.setValue(processor.getLastMaxPpmValue());
 }

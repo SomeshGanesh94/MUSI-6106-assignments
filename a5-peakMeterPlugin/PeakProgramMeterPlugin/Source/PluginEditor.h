@@ -17,7 +17,7 @@
 //==============================================================================
 /**
 */
-class PeakProgramMeterPluginAudioProcessorEditor  : public AudioProcessorEditor
+class PeakProgramMeterPluginAudioProcessorEditor  : public AudioProcessorEditor, public Timer
 {
 public:
     PeakProgramMeterPluginAudioProcessorEditor (PeakProgramMeterPluginAudioProcessor&);
@@ -26,6 +26,11 @@ public:
     //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
+    
+    void timerCallback() override;
+    
+    void setNumChannels();
+    void setValue();
 
 private:
     // This reference is provided as a quick way for your editor to
