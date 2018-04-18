@@ -23,6 +23,8 @@ public:
     
     Error_t process (float **ppfInputBuffer, float *pfOutputBuffer, int iNumberOfFrames);
     
+    bool isInitialized();
+    
 protected:
     CPpm ();
     virtual ~CPpm ();

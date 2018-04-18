@@ -9,6 +9,8 @@ Error_t CPpm::createInstance(CPpm *&pCPpm)
     if (!pCPpm)
         return kUnknownError;
     
+    pCPpm->m_bIsInitialized = false;
+    
     return kNoError;
 }
 
@@ -35,8 +37,6 @@ Error_t CPpm::init(int iBlockSize, int iHopSize, float fSampleRateInHz, int iNum
     
     m_fAlpha[kAlphaAttack] = 1 - exp(-2.2 / (m_fSampleRateInHz * 0.01));
     m_fAlpha[kAlphaRelease] = 1 - exp(-2.2 / (m_fSampleRateInHz * 1.5));
-    //    m_fAlpha[kAlphaAttack] = fAlpha[kAlphaAttack];
-    //    m_fAlpha[kAlphaRelease] = fAlpha[kAlphaRelease];
     
     m_bIsInitialized = true;
     
@@ -62,36 +62,43 @@ Error_t CPpm::reset()
 
 Error_t CPpm::process(float **ppfInputBuffer, float *pfOutputBuffer, int iNumberOfFrames)
 {
-    m_fFilterBuf = m_pfVtemp[m_iHopSize-1];
-    float fMaxValue = 0;
-    
-    for (int iChannel = 0; iChannel < m_iNumChannels; iChannel++)
+    if (m_bIsInitialized)
     {
-        for (int iSample = 0; iSample < iNumberOfFrames; iSample++)
+        m_fFilterBuf = m_pfVtemp[m_iHopSize-1];
+        float fMaxValue = 0;
+        
+        for (int iChannel = 0; iChannel < m_iNumChannels; iChannel++)
         {
-            if (m_fFilterBuf > abs(ppfInputBuffer[iChannel][iSample]))
+            for (int iSample = 0; iSample < iNumberOfFrames; iSample++)
             {
-                m_pfVtemp[iSample] = (1 - m_fAlpha[kAlphaRelease]) * m_fFilterBuf;
+                if (m_fFilterBuf > abs(ppfInputBuffer[iChannel][iSample]))
+                {
+                    m_pfVtemp[iSample] = (1 - m_fAlpha[kAlphaRelease]) * m_fFilterBuf;
+                }
+                else
+                {
+                    m_pfVtemp[iSample] = m_fAlpha[kAlphaAttack] * abs(ppfInputBuffer[iChannel][iSample]) + (1 - m_fAlpha[kAlphaAttack]) * m_fFilterBuf;
+                }
+                m_fFilterBuf = m_pfVtemp[iSample];
+                
+                if (fMaxValue < m_pfVtemp[iSample])
+                {
+                    fMaxValue = m_pfVtemp[iSample];
+                }
             }
-            else
-            {
-                m_pfVtemp[iSample] = m_fAlpha[kAlphaAttack] * abs(ppfInputBuffer[iChannel][iSample]) + (1 - m_fAlpha[kAlphaAttack]) * m_fFilterBuf;
-            }
-            m_fFilterBuf = m_pfVtemp[iSample];
-            
-            if (fMaxValue < m_pfVtemp[iSample])
-            {
-                fMaxValue = m_pfVtemp[iSample];
-            }
+            pfOutputBuffer[iChannel] = fMaxValue;
         }
-        pfOutputBuffer[iChannel] = fMaxValue;
+        return kNoError;
     }
-    return kNoError;
+    else
+    {
+        return kNotInitializedError;
+    }
 }
 
 CPpm::CPpm()
 {
-    m_bIsInitialized = false;
+
 }
 
 CPpm::~CPpm()
@@ -99,3 +106,7 @@ CPpm::~CPpm()
     
 }
 
+bool CPpm::isInitialized()
+{
+    return m_bIsInitialized;
+}
