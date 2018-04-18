@@ -22,11 +22,16 @@ public:
     {
         // In your constructor, you should add any child components, and
         // initialise any special settings that your component needs.
-
+        
+        // Assuming no more than 50 channels will be used
+        m_pfPeakValue = new float[50];
+        m_iNumChannels = 1;
     }
 
     ~MeterComponent()
     {
+        delete [] m_pfPeakValue;
+        m_pfPeakValue = NULL;
     }
 
     void paint (Graphics& g) override
@@ -40,12 +45,22 @@ public:
 
         g.fillAll (Colours::black);   // clear the background
 
-        g.setColour (Colours::grey);
-        g.drawRect (getLocalBounds(), 1);   // draw an outline around the component
-
+        g.setColour (Colours::green);
+        
+        float fChannelBlockSize = getWidth()/m_iNumChannels;
+        float fVolumeBlockSize = getHeight()/12;
+        for (int iChannel = 0; iChannel < m_iNumChannels; iChannel++)
+        {
+            float fStart = (float)iChannel * fChannelBlockSize;
+            float fEnd = fStart + fChannelBlockSize;
+            float fHeight = abs(m_pfPeakValue[iChannel]) * fVolumeBlockSize;
+            g.fillRect(fStart, fHeight, fEnd, (float)getHeight());
+//            std::cout << m_pfPeakValue[iChannel] << " ";
+        }
+//        std::cout << std::endl;
         g.setColour (Colours::white);
         g.setFont (14.0f);
-        g.drawText ("MeterComponent", getLocalBounds(),
+        g.drawText ("Peak Program Meter", getLocalBounds(),
                     Justification::centred, true);   // draw some placeholder text
     }
 
@@ -55,7 +70,34 @@ public:
         // components that your component contains..
 
     }
+    
+    void setValue(float* fPeakValue)
+    {
+        for (int iChannel = 0; iChannel < m_iNumChannels; iChannel++)
+        {
+            float fDBValue = 20.0*log10(fPeakValue[iChannel]);
+            if (fDBValue > -12.0)
+            {
+                m_pfPeakValue[iChannel] = fDBValue;
+            }
+            else
+            {
+                m_pfPeakValue[iChannel] = -12.0;
+            }
+        }
+        this->repaint();
+    }
+    
+    void setNumChannels(int iNumChannels)
+    {
+        m_iNumChannels = iNumChannels;
+    }
 
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MeterComponent)
+
+    float* m_pfPeakValue;
+    int m_iNumChannels;
+    
+    bool m_bIsInitialized;
 };
