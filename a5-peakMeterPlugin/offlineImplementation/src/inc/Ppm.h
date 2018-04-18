@@ -23,6 +23,8 @@ public:
     
     Error_t process (float **ppfInputBuffer, float *pfOutputBuffer, int iNumberOfFrames);
     
+    Error_t setNumChannels(int iChannels);
+    
     bool isInitialized();
     
 protected:

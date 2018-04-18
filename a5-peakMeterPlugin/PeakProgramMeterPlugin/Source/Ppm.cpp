@@ -106,6 +106,24 @@ Error_t CPpm::process(float **ppfInputBuffer, float *pfOutputBuffer, int iNumber
     }
 }
 
+Error_t CPpm::setNumChannels(int iChannels)
+{
+    if (iChannels > 0)
+    {
+        m_iNumChannels = iChannels;
+        return kNoError;
+    }
+    else
+    {
+        return kFunctionInvalidArgsError;
+    }
+}
+
+bool CPpm::isInitialized()
+{
+    return m_bIsInitialized;
+}
+
 CPpm::CPpm()
 {
 
@@ -116,7 +134,4 @@ CPpm::~CPpm()
     
 }
 
-bool CPpm::isInitialized()
-{
-    return m_bIsInitialized;
-}
+
