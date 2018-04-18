@@ -38,6 +38,9 @@ private:
     PeakProgramMeterPluginAudioProcessor& processor;
     
     MeterComponent m_CMeterComponent;
+    
+    Label m_lPluginName;
+    Label m_lPluginCreators;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PeakProgramMeterPluginAudioProcessorEditor)
 };

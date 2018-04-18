@@ -20,6 +20,15 @@ PeakProgramMeterPluginAudioProcessorEditor::PeakProgramMeterPluginAudioProcessor
     setSize (400, 300);
     addAndMakeVisible(m_CMeterComponent);
     m_CMeterComponent.setSize(100, 100);
+    
+    m_lPluginName.setText("Peak program meter: assignment 5", dontSendNotification);
+    m_lPluginName.setFont(18);
+    addAndMakeVisible(m_lPluginName);
+    
+    m_lPluginCreators.setText("Somesh Ganesh & Hanyu Li", dontSendNotification);
+    m_lPluginCreators.setFont(10);
+    addAndMakeVisible(m_lPluginCreators);
+    
     startTimer(10);
 }
 
@@ -35,7 +44,6 @@ void PeakProgramMeterPluginAudioProcessorEditor::paint (Graphics& g)
 
     g.setColour (Colours::white);
     g.setFont (15.0f);
-    g.drawFittedText ("Hello World!", getLocalBounds(), Justification::centred, 1);
 }
 
 void PeakProgramMeterPluginAudioProcessorEditor::resized()
@@ -43,6 +51,8 @@ void PeakProgramMeterPluginAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     m_CMeterComponent.setBounds(0, 0, 100, 100);
+    m_lPluginName.setBounds(90, -130, getWidth(), getHeight());
+    m_lPluginCreators.setBounds(125, -110, getWidth(), getHeight());
 }
 
 void PeakProgramMeterPluginAudioProcessorEditor::timerCallback()
