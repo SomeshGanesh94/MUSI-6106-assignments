@@ -41,6 +41,7 @@ private:
     
     Label m_lPluginName;
     Label m_lPluginCreators;
+    Label m_lLowEndIndicator, m_lHighEndIndicator;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PeakProgramMeterPluginAudioProcessorEditor)
 };

@@ -47,21 +47,25 @@ public:
 
         g.setColour (Colours::green);
         
-        float fChannelBlockSize = getWidth()/m_iNumChannels;
+        float fChannelBlockSize = (getWidth() - (m_iNumChannels - 1) * 10) / m_iNumChannels;
         float fVolumeBlockSize = getHeight()/12;
         for (int iChannel = 0; iChannel < m_iNumChannels; iChannel++)
         {
-            float fStart = (float)iChannel * fChannelBlockSize;
+            float fStart = (float)iChannel * fChannelBlockSize + 10 * float(iChannel) ;
             float fEnd = fStart + fChannelBlockSize;
             float fHeight = abs(m_pfPeakValue[iChannel]) * fVolumeBlockSize;
+            if (m_pfPeakValue[iChannel] >= 0)
+                g.setColour (Colours::red);
+            else
+                g.setColour (Colours::green);
             g.fillRect(fStart, fHeight, fEnd, (float)getHeight());
 //            std::cout << m_pfPeakValue[iChannel] << " ";
         }
 //        std::cout << std::endl;
         g.setColour (Colours::white);
         g.setFont (14.0f);
-        g.drawText ("Peak Program Meter", getLocalBounds(),
-                    Justification::centred, true);   // draw some placeholder text
+//        g.drawText ("Peak Program Meter", getLocalBounds(),
+//                    Justification::centred, true);   // draw some placeholder text
     }
 
     void resized() override
@@ -79,12 +83,14 @@ public:
             if (fDBValue > -12.0)
             {
                 m_pfPeakValue[iChannel] = fDBValue;
+                std::cout << fDBValue << " " ;
             }
             else
             {
                 m_pfPeakValue[iChannel] = -12.0;
             }
         }
+        std::cout << std::endl;
         this->repaint();
     }
     
