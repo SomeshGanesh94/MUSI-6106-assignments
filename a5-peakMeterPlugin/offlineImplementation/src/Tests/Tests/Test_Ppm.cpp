@@ -81,8 +81,6 @@ SUITE(Ppm)
         for (int i = 0; i < iNumChannels; i++)
             CHECK_CLOSE(0.F, m_pfOutputData[i], 1e-3);
     }
-    
-    
 
     TEST_FIXTURE(PpmData, DCInput)
     {
@@ -95,7 +93,7 @@ SUITE(Ppm)
         m_pCPpm->init(iBlockSize, iHopSize, fSampleFreq, iNumChannels);
         m_pCPpm->process(m_ppfData, m_pfOutputData, iDataLength);
         for (int i = 0; i < iNumChannels; i++)
-            CHECK_CLOSE(0.496F, m_pfOutputData[i], 1e-3);
+            CHECK_CLOSE(0.5F, m_pfOutputData[i], 1e-3);
 
     }
 
@@ -103,7 +101,7 @@ SUITE(Ppm)
     {
         int iBlockSize = 1024;
         int iHopSize = iBlockSize;
-        float fSinewaveFreq = 2000.2F;
+        float fSinewaveFreq = 200.2F;
 
         for (int i = 0; i < iNumChannels; i++)
             CSynthesis::generateSine (m_ppfData[i], fSinewaveFreq, fSampleFreq, iDataLength, 1.F, 0.F);
@@ -111,7 +109,7 @@ SUITE(Ppm)
         m_pCPpm->init(iBlockSize, iHopSize, fSampleFreq, iNumChannels);
         m_pCPpm->process(m_ppfData, m_pfOutputData, iDataLength);
         for (int i = 0; i < iNumChannels; i++)
-            CHECK_CLOSE(1.F, m_pfOutputData[i], 1e-3);
+            CHECK_CLOSE(.96F, m_pfOutputData[i], 1e-3);
     }
 
     TEST_FIXTURE(PpmData, AudioInput)
@@ -146,7 +144,7 @@ SUITE(Ppm)
 
         CAudioFileIf::destroy(phAudioFile);
     }
-    
+
 }
 
 #endif //WITH_TESTS

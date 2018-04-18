@@ -42,7 +42,7 @@ private:
     int m_iNumChannels;
     float m_fFilterBuf;
     
-    float **m_ppfVtemp;
+    float *m_ppfVtemp;
     
     const int iMaxChannels = 50;
 };

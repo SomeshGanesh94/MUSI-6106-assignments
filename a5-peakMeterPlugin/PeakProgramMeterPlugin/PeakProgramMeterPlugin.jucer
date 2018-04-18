@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT name="PeakProgramMeterPlugin" projectType="audioplug" buildStandalone="0"
+<JUCERPROJECT name="PeakProgramMeterPlugin" projectType="audioplug" buildStandalone="1"
               jucerVersion="5.3.0" buildAU="0" pluginName="PeakProgramMeterPlugin"
-              pluginDesc="PeakProgramMeterPlugin" headerPath="/Users/someshganesh/Documents/GitHub/MUSI-6106-assignments/a5-peakMeterPlugin/offlineImplementation/src/inc/&#10;/Users/someshganesh/Documents/GitHub/MUSI-6106-assignments/a5-peakMeterPlugin/offlineImplementation/inc/">
+              pluginDesc="PeakProgramMeterPlugin" headerPath="../../../offlineImplementation/src/inc/&#10;../../../offlineImplementation/inc/">
   <MAINGROUP id="PdGt0f" name="PeakProgramMeterPlugin">
     <GROUP id="{7CB65A93-C123-1B1A-F913-E1AEF7E71351}" name="Source">
       <FILE id="crJmUH" name="Ppm.cpp" compile="1" resource="0" file="Source/Ppm.cpp"/>
@@ -20,8 +20,8 @@
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" headerPath="/Users/someshganesh/Documents/GitHub/MUSI-6106-assignments/a5-peakMeterPlugin/offlineImplementation/src/inc/&#10;/Users/someshganesh/Documents/GitHub/MUSI-6106-assignments/a5-peakMeterPlugin/offlineImplementation/inc/"/>
-        <CONFIGURATION isDebug="0" name="Release" headerPath="/Users/someshganesh/Documents/GitHub/MUSI-6106-assignments/a5-peakMeterPlugin/offlineImplementation/src/inc/&#10;/Users/someshganesh/Documents/GitHub/MUSI-6106-assignments/a5-peakMeterPlugin/offlineImplementation/inc/"/>
+        <CONFIGURATION isDebug="1" name="Debug"/>
+        <CONFIGURATION isDebug="0" name="Release"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../../../../JUCE/modules"/>
@@ -85,22 +85,22 @@
     </CLION>
   </EXPORTFORMATS>
   <MODULES>
-    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
-    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
-    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"
-            useGlobalPath="0"/>
-    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
-    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
-    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
-    <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
-    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
-    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
-    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
-    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
-    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
-    <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
-    <MODULE id="juce_video" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+            useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_video" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
   </MODULES>
   <JUCEOPTIONS/>
 </JUCERPROJECT>
